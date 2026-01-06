@@ -1,0 +1,20 @@
+{
+    "events": [
+    {
+      "eventId": 1,
+      "title": "Workshop de Culinária Italiana",
+      "description": "Aprender a fazer massas artesanais.",
+      "date": "2025-03-15",
+      "recipeId": 101,
+      "createdAt": "2025-02-01T11:00:00Z"
+    },
+    {
+      "eventId": 2,
+      "title": "Sessão de Degustação",
+      "description": "Provar pratos típicos portugueses.",
+      "date": "2025-04-10",
+      "recipeId": 102,
+      "createdAt": "2025-02-05T16:30:00Z"
+    }
+  ]
+}
