@@ -1,15 +1,14 @@
-// app/_layout.tsx
 import { Stack } from 'expo-router';
 
 export default function RootLayout() {
   return (
-    <Stack>
-      {/* Auth screens */}
-      <Stack.Screen name="auth/login" options={{ headerShown: false }} />
-      <Stack.Screen name="auth/register" options={{ headerShown: false }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      {/* AUTH */}
+      <Stack.Screen name="auth/login" />
+      <Stack.Screen name="auth/register" />
 
-      {/* Tabs */}
-      <Stack.Screen name="(tabs)/home" options={{ headerShown: false }} />
+      {/* APP */}
+      <Stack.Screen name="(tabs)" />
     </Stack>
   );
 }
