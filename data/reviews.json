@@ -1,0 +1,26 @@
+{
+"reviews": [
+    {
+      "id": 1,
+      "userId": 1,
+      "reviewId": 1,
+      "question1": 5,
+      "question2": 4,
+      "question3": "Gostei muito da organização e do ambiente.",
+      "question4": "A comida estava excelente.",
+      "question5": true,
+      "createdAt": "2025-03-15T18:45:00Z"
+    },
+    {
+      "id": 2,
+      "userId": 2,
+      "reviewId": 2,
+      "question1": 3,
+      "question2": 5,
+      "question3": "O evento foi interessante.",
+      "question4": "Podia ter mais opções vegetarianas.",
+      "question5": false,
+      "createdAt": "2025-04-10T20:10:00Z"
+    }
+  ]
+}
