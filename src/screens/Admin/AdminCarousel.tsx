@@ -1,20 +1,21 @@
 // src/screens/admin/AdminCarousel.tsx
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, Dimensions, FlatList, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
+import { View, StyleSheet, Dimensions, FlatList, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import CreateEvent from './CreateEvent';
 import ManageUsers from './UsersManagement';
+import ManageReviews from './ManageReviews';
 
 const { width } = Dimensions.get('window');
 
 export default function AdminCarousel({ events, setEvents }: any) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
+
   const slides = [
     <CreateEvent events={events} setEvents={setEvents} key="events" />,
     <ManageUsers key="users" />,
-    <View key="future" style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>Futuro Slide</Text></View>
+    <ManageReviews key="reviews" />,
   ];
-
-  const flatListRef = useRef<FlatList>(null);
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / width);
@@ -22,7 +23,7 @@ export default function AdminCarousel({ events, setEvents }: any) {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={[styles.container]}>
       <FlatList
         ref={flatListRef}
         data={slides}
@@ -32,7 +33,7 @@ export default function AdminCarousel({ events, setEvents }: any) {
         onScroll={handleScroll}
         scrollEventThrottle={16}
         keyExtractor={(_, index) => index.toString()}
-        renderItem={({ item }) => <View style={{ width }}>{item}</View>}
+        renderItem={({ item }) => <View style={[styles.slide, { width }]}>{item}</View>}
       />
 
       {/* Indicadores */}
@@ -46,6 +47,13 @@ export default function AdminCarousel({ events, setEvents }: any) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#BBCDB7', // fundo verde do admin
+  },
+  slide: {
+    flex: 1,
+  },
   indicatorContainer: {
     position: 'absolute',
     bottom: 30,
