@@ -7,8 +7,8 @@ interface RecommendProps {
 
 export const Recommend = ({ recommend, onChange }: RecommendProps) => {
     return (
-        <View>
-            <Text>Would you recommend this service?</Text>
+        <View style={{ marginBottom: 16 }}>
+            <Text style={{fontFamily: 'georamaRegular'}}>Would you recommend this service?</Text>
 
             <View style={{ flexDirection: 'row', marginTop: 12 }}>
                 {['Yes', 'No'].map(option => {
@@ -24,7 +24,7 @@ export const Recommend = ({ recommend, onChange }: RecommendProps) => {
                                 backgroundColor: recommend === value ? '#2f95dc' : '#fff',
                             }}
                         >
-                            <Text>{option}</Text>
+                            <Text style={{fontFamily: 'livvicRegular'}}>{option}</Text>
                         </Pressable>
                     );
                 })}

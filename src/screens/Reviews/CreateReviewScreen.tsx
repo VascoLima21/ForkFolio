@@ -26,7 +26,7 @@ export default function CreateReviewScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
             {/* Scrollable Content */}
             <ScrollView
-                contentContainerStyle={{ flexGrow: 1, padding: 20 }}
+                contentContainerStyle={{ flexGrow: 1, padding: 16, paddingTop: 12, paddingBottom: 8 }}
                 keyboardShouldPersistTaps="handled"
             >
                 {/* Progress Bar */}
