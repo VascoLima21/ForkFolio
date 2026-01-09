@@ -1,0 +1,36 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "type": "rating",
+      "title": "How would you describe your experience?",
+      "minLabel": "Not very satisfied",
+      "maxLabel": "Very satisfied",
+      "maxValue": 5
+    },
+    {
+      "id": 2,
+      "type": "slider",
+      "title": "How would you classify the students’ performance?",
+      "minValue": 1,
+      "maxValue": 5,
+      "step": 1
+    },
+    {
+      "id": 3,
+      "type": "text",
+      "title": "What did you like the most?"
+    },
+    {
+      "id": 4,
+      "type": "text",
+      "title": "What could be improved?"
+    },
+    {
+      "id": 5,
+      "type": "choice",
+      "title": "Would you recommend this service?",
+      "options": ["Yes", "No"]
+    }
+  ]
+}
