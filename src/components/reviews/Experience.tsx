@@ -9,8 +9,8 @@ interface StepExperienceProps {
 
 export const Experience = ({ experience, performance, onChange }: StepExperienceProps) => {
   return (
-    <View>
-      <Text>How would you describe your experience?</Text>
+    <View style={{ marginBottom: 16 }}>
+      <Text style={{fontFamily: 'georamaRegular'}}>How would you describe your experience?</Text>
 
       <View style={{ flexDirection: 'row', marginVertical: 12 }}>
         {[1, 2, 3, 4, 5].map(value => (
@@ -28,7 +28,7 @@ export const Experience = ({ experience, performance, onChange }: StepExperience
         ))}
       </View>
 
-      <Text>How would you classify the students` performance?</Text>
+      <Text style={{fontFamily: 'georamaRegular'}}>How would you classify the students` performance?</Text>
       <Slider
         minimumValue={1}
         maximumValue={5}
