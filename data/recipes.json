@@ -1,0 +1,32 @@
+{
+  "recipes": [
+    {
+      "recipeId": 1,
+      "name": "Bochecha de Porco Estufada",
+      "description": "Prato tradicional de longa confeção, muito tenro e aromático, ideal para aprender técnicas de estufar carnes.",
+      "imageUrl": "https://www.pingodoce.pt/wp-content/uploads/2017/07/bochechas-de-porco-com-cerveja-preta.jpg",
+      "createdAt": "2026-01-10T10:00:00Z"
+    },
+    {
+      "recipeId": 2,
+      "name": "Sopa de Tomate",
+      "description": "Sopa simples e reconfortante, perfeita para iniciantes praticarem bases de cozinha.",
+      "imageUrl": "https://static.itdg.com.br/images/640-440/dfed94a99672efa9b8af8c8da917f48f/320099-original.jpg",
+      "createdAt": "2026-01-10T10:05:00Z"
+    },
+    {
+      "recipeId": 3,
+      "name": "Creme de Couve-Flor",
+      "description": "Creme aveludado e leve, focado em técnicas de cozedura e trituração.",
+      "imageUrl": "https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/9AA29A2F-4440-46BB-8EC6-5FAE082506CC/Derivates/db2eff80-203b-4936-b272-cc9dae142c18.jpg",
+      "createdAt": "2026-01-10T10:10:00Z"
+    },
+    {
+      "recipeId": 4,
+      "name": "Bolo de Caramelo",
+      "description": "Sobremesa clássica para praticar massas, caldas e controlo de temperatura do açúcar.",
+      "imageUrl": "https://www.pingodoce.pt/wp-content/uploads/2020/12/bolo-caramelo.jpeg",
+      "createdAt": "2026-01-10T10:15:00Z"
+    }
+  ]
+}
