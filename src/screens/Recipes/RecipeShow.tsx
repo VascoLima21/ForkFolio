@@ -1,4 +1,5 @@
-import { View, Text, Image, StyleSheet, Dimensions} from 'react-native';
+import {Text, Image, StyleSheet, Dimensions, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 
 interface RecipeCardProps {
   recipe: {
@@ -9,11 +10,16 @@ interface RecipeCardProps {
 }
 
 export default function RecipeCard({ recipe }: RecipeCardProps) {
+  const router = useRouter();
   const screenWidth = Dimensions.get('window').width;
   const cardWidth = (screenWidth - 16 * 3) / 2; // paddingHorizontal 16 + gap 16
 
+  const handlePress = () => {
+    router.push(`/recipes/${recipe.recipeId}`);
+  };
+
   return (
-    <View style={[styles.card, { width: cardWidth }]}>
+    <Pressable onPress={handlePress} style={[styles.card, { width: cardWidth }]}>
       <Image
         source={{ uri: recipe.imageUrl }}
         style={styles.image}
@@ -22,7 +28,7 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
       <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
         {recipe.name}
       </Text>
-    </View>
+    </Pressable>
   );
 }
 
