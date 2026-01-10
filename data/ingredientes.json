@@ -1,0 +1,23 @@
+{
+  "ingredients": [
+    { "ingredientId": 1, "name": "Bochechas de porco", "imageUrl": "https://example.com/ing/bochechas.jpg" },
+    { "ingredientId": 2, "name": "Cebola", "imageUrl": "https://example.com/ing/cebola.jpg" },
+    { "ingredientId": 3, "name": "Alho", "imageUrl": "https://example.com/ing/alho.jpg" },
+    { "ingredientId": 4, "name": "Azeite", "imageUrl": "https://example.com/ing/azeite.jpg" },
+    { "ingredientId": 5, "name": "Tomate", "imageUrl": "https://example.com/ing/tomate.jpg" },
+    { "ingredientId": 6, "name": "Couve-flor", "imageUrl": "https://example.com/ing/couveflor.jpg" },
+    { "ingredientId": 7, "name": "Natas", "imageUrl": "https://example.com/ing/natas.jpg" },
+    { "ingredientId": 8, "name": "Ovos", "imageUrl": "https://example.com/ing/ovos.jpg" },
+    { "ingredientId": 9, "name": "Açúcar", "imageUrl": "https://example.com/ing/acucar.jpg" },
+    { "ingredientId": 10, "name": "Farinha", "imageUrl": "https://example.com/ing/farinha.jpg" },
+    { "ingredientId": 11, "name": "Vinho tinto", "imageUrl": "https://example.com/ing/vinho.jpg" },
+    { "ingredientId": 12, "name": "Folha de louro", "imageUrl": "https://example.com/ing/louro.jpg" },
+    { "ingredientId": 13, "name": "Pimentão doce", "imageUrl": "https://example.com/ing/pimentao.jpg" },
+    { "ingredientId": 14, "name": "Caldo de carne", "imageUrl": "https://example.com/ing/caldo.jpg" },
+    { "ingredientId": 15, "name": "Água", "imageUrl": "https://example.com/ing/agua.jpg" },
+    { "ingredientId": 16, "name": "Sal", "imageUrl": "https://example.com/ing/sal.jpg" },
+    { "ingredientId": 17, "name": "Manteiga", "imageUrl": "https://example.com/ing/manteiga.jpg" },
+    { "ingredientId": 18, "name": "Fermento em pó", "imageUrl": "https://example.com/ing/fermento.jpg" },
+    { "ingredientId": 19, "name": "Leite", "imageUrl": "https://example.com/ing/leite.jpg" }
+  ]
+}

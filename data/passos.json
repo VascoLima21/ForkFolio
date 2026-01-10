@@ -1,0 +1,37 @@
+{
+  "steps": [
+
+    { "recipeId": 1, "order": 1, "description": "Retire as bochechas do frigorífico cerca de 15 minutos antes de cozinhar para que fiquem à temperatura ambiente." },
+    { "recipeId": 1, "order": 2, "description": "Limpe as bochechas retirando o excesso de gordura e corte-as em pedaços grandes e uniformes." },
+    { "recipeId": 1, "order": 3, "description": "Pique finamente a cebola e os dentes de alho." },
+    { "recipeId": 1, "order": 4, "description": "Aqueça o azeite num tacho largo em lume médio." },
+    { "recipeId": 1, "order": 5, "description": "Junte a cebola e o alho e deixe refogar lentamente até ficarem dourados e aromáticos." },
+    { "recipeId": 1, "order": 6, "description": "Adicione as bochechas e deixe selar bem de todos os lados." },
+    { "recipeId": 1, "order": 7, "description": "Reduza o lume, tape o tacho e deixe cozinhar cerca de 60 a 75 minutos, mexendo ocasionalmente, até a carne ficar muito macia." },
+
+    { "recipeId": 2, "order": 1, "description": "Lave bem os tomates e corte-os em pedaços grandes." },
+    { "recipeId": 2, "order": 2, "description": "Pique a cebola e os dentes de alho." },
+    { "recipeId": 2, "order": 3, "description": "Aqueça o azeite numa panela e refogue a cebola e o alho até ficarem macios." },
+    { "recipeId": 2, "order": 4, "description": "Junte o tomate, mexa bem e deixe cozinhar cerca de 20 minutos em lume médio." },
+    { "recipeId": 2, "order": 5, "description": "Quando os tomates estiverem bem macios, retire do lume." },
+    { "recipeId": 2, "order": 6, "description": "Triture tudo com uma varinha mágica ou num liquidificador até obter uma sopa lisa e cremosa." },
+    { "recipeId": 2, "order": 7, "description": "Prove, ajuste o sal e sirva quente." },
+
+    { "recipeId": 3, "order": 1, "description": "Lave a couve-flor e corte-a em ramos pequenos." },
+    { "recipeId": 3, "order": 2, "description": "Pique a cebola." },
+    { "recipeId": 3, "order": 3, "description": "Aqueça o azeite numa panela e refogue a cebola até ficar translúcida." },
+    { "recipeId": 3, "order": 4, "description": "Junte a couve-flor e água suficiente para cobrir os legumes." },
+    { "recipeId": 3, "order": 5, "description": "Deixe cozinhar em lume médio cerca de 25 minutos, até a couve-flor ficar bem macia." },
+    { "recipeId": 3, "order": 6, "description": "Adicione as natas e triture tudo até obter um creme liso e aveludado." },
+    { "recipeId": 3, "order": 7, "description": "Ajuste o sal, mexa bem e sirva quente." },
+
+    { "recipeId": 4, "order": 1, "description": "Pré-aqueça o forno a 180°C e unte uma forma com manteiga e farinha." },
+    { "recipeId": 4, "order": 2, "description": "Numa taça grande, parta os ovos e junte o açúcar." },
+    { "recipeId": 4, "order": 3, "description": "Bata muito bem com uma vara de arames ou batedeira até obter um creme claro e fofo." },
+    { "recipeId": 4, "order": 4, "description": "Adicione a farinha peneirada aos poucos, envolvendo suavemente para não perder ar." },
+    { "recipeId": 4, "order": 5, "description": "Deite a massa na forma preparada e alise a superfície." },
+    { "recipeId": 4, "order": 6, "description": "Leve ao forno durante cerca de 35 a 40 minutos, até o bolo ficar dourado e cozido por dentro." },
+    { "recipeId": 4, "order": 7, "description": "Retire do forno, deixe arrefecer um pouco e desenforme com cuidado." }
+
+  ]
+}

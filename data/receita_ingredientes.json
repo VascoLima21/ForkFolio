@@ -1,0 +1,34 @@
+{
+  "recipeIngredients": [
+
+    { "recipeId": 1, "ingredientId": 1, "quantity": { "value": 1.2, "unit": "kg" } },
+    { "recipeId": 1, "ingredientId": 2, "quantity": { "value": 2, "unit": "unidades" } },
+    { "recipeId": 1, "ingredientId": 3, "quantity": { "value": 4, "unit": "dentes" } },
+    { "recipeId": 1, "ingredientId": 4, "quantity": { "value": 60, "unit": "ml" } },
+    { "recipeId": 1, "ingredientId": 11, "quantity": { "value": 150, "unit": "ml" } },
+    { "recipeId": 1, "ingredientId": 12, "quantity": { "value": 2, "unit": "folhas" } },
+    { "recipeId": 1, "ingredientId": 13, "quantity": { "value": 1, "unit": "colher chá" } },
+    { "recipeId": 1, "ingredientId": 14, "quantity": { "value": 500, "unit": "ml" } },
+
+    { "recipeId": 2, "ingredientId": 5, "quantity": { "value": 1, "unit": "kg" } },
+    { "recipeId": 2, "ingredientId": 2, "quantity": { "value": 1, "unit": "unidade" } },
+    { "recipeId": 2, "ingredientId": 3, "quantity": { "value": 2, "unit": "dentes" } },
+    { "recipeId": 2, "ingredientId": 4, "quantity": { "value": 30, "unit": "ml" } },
+    { "recipeId": 2, "ingredientId": 15, "quantity": { "value": 750, "unit": "ml" } },
+    { "recipeId": 2, "ingredientId": 16, "quantity": { "value": 1, "unit": "pitada" } },
+
+    { "recipeId": 3, "ingredientId": 6, "quantity": { "value": 1, "unit": "unidade grande" } },
+    { "recipeId": 3, "ingredientId": 2, "quantity": { "value": 1, "unit": "unidade" } },
+    { "recipeId": 3, "ingredientId": 3, "quantity": { "value": 2, "unit": "dentes" } },
+    { "recipeId": 3, "ingredientId": 4, "quantity": { "value": 30, "unit": "ml" } },
+    { "recipeId": 3, "ingredientId": 7, "quantity": { "value": 200, "unit": "ml" } },
+    { "recipeId": 3, "ingredientId": 15, "quantity": { "value": 500, "unit": "ml" } },
+
+    { "recipeId": 4, "ingredientId": 8, "quantity": { "value": 4, "unit": "unidades" } },
+    { "recipeId": 4, "ingredientId": 9, "quantity": { "value": 220, "unit": "g" } },
+    { "recipeId": 4, "ingredientId": 10, "quantity": { "value": 200, "unit": "g" } },
+    { "recipeId": 4, "ingredientId": 17, "quantity": { "value": 100, "unit": "g" } },
+    { "recipeId": 4, "ingredientId": 18, "quantity": { "value": 1, "unit": "colher chá" } },
+    { "recipeId": 4, "ingredientId": 19, "quantity": { "value": 200, "unit": "ml" } }
+  ]
+}
