@@ -3,6 +3,8 @@ import { View, Text, ScrollView, StyleSheet, Pressable, Modal } from 'react-nati
 import usersData from '../../../data/users.json';
 import eventsData from '../../../data/eventos.json';
 import reviewsData from '../../../data/reviews.json';
+import ConfirmModal from '../../components/ConfirmModal';
+
 
 type ReviewType = {
   id: number;
@@ -150,35 +152,16 @@ export default function ManageReviews() {
           </View>
         </View>
       </Modal>
-
-      {/* Modal de confirmação */}
-      <Modal visible={confirmVisible} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.confirmBox}>
-            <Text style={styles.confirmTitle}>Tens a certeza?</Text>
-            <Text style={styles.confirmText}>Esta ação não pode ser desfeita.</Text>
-
-            <View style={styles.confirmButtons}>
-              <Pressable
-                style={[styles.confirmButton, { backgroundColor: '#FF4C4C' }]}
-                onPress={() => setConfirmVisible(false)}
-              >
-                <Text style={styles.buttonText}>Não</Text>
-              </Pressable>
-
-              <Pressable
-                style={[styles.confirmButton, { backgroundColor: '#2EC4C6' }]}
-                onPress={() => {
-                  deleteReview();
-                  setConfirmVisible(false);
-                }}
-              >
-                <Text style={styles.buttonText}>Sim</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <ConfirmModal
+        visible={confirmVisible}
+        title="Tens a certeza?"
+        message="Esta ação não pode ser desfeita."
+        onCancel={() => setConfirmVisible(false)}
+        onConfirm={() => {
+          deleteReview();
+          setConfirmVisible(false);
+        }}
+      />
     </View>
   );
 }

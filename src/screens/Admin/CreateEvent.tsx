@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput, Modal, StyleSheet, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import ConfirmModal from '../../components/ConfirmModal';
 
 type EventType = {
   eventId: number;
@@ -26,6 +27,13 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
   const [newDate, setNewDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  // ConfirmModal states
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState('');
+  const [confirmMessage, setConfirmMessage] = useState('');
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
+
+  // Abrir modal de edição
   const openEditModal = (event: EventType) => {
     setEditingEvent(event);
     setNewTitle(event.title);
@@ -50,6 +58,7 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
     setNewDate(new Date());
   };
 
+  // Adicionar evento
   const handleAddEvent = () => {
     if (newTitle && newDescription && newDate) {
       const newEvent: EventType = {
@@ -65,6 +74,7 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
     }
   };
 
+  // Atualizar evento
   const handleUpdateEvent = () => {
     if (editingEvent && newTitle && newDescription && newDate) {
       setEvents(events.map(ev =>
@@ -76,11 +86,20 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
     }
   };
 
+  // Deletar evento
   const handleDeleteEvent = () => {
     if (editingEvent) {
       setEvents(events.filter(ev => ev.eventId !== editingEvent.eventId));
       closeModal();
     }
+  };
+
+  // Request confirmation before delete
+  const requestConfirmation = (title: string, message: string, action: () => void) => {
+    setConfirmTitle(title);
+    setConfirmMessage(message);
+    setConfirmAction(() => action);
+    setTimeout(() => setConfirmVisible(true), 0); // garante que título e mensagem aparecem
   };
 
   const onChangeDate = (event: any, selectedDate?: Date) => {
@@ -115,68 +134,107 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
       </Pressable>
 
       <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={closeModal}
+  animationType="slide"
+  transparent={true}
+  visible={modalVisible}
+  onRequestClose={closeModal}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContainer}>
+      <Text style={styles.modalTitle}>{editingEvent ? 'Editar Evento' : 'Novo Evento'}</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Título"
+        value={newTitle}
+        onChangeText={setNewTitle}
+        autoFocus
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Descrição"
+        value={newDescription}
+        onChangeText={setNewDescription}
+        multiline
+      />
+
+      <Pressable
+        style={styles.dateInput}
+        onPress={() => setShowDatePicker(true)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>{editingEvent ? 'Editar Evento' : 'Novo Evento'}</Text>
+        <Text>{formatDate(newDate)}</Text>
+      </Pressable>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Título"
-              value={newTitle}
-              onChangeText={setNewTitle}
-              autoFocus
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Descrição"
-              value={newDescription}
-              onChangeText={setNewDescription}
-              multiline
-            />
+      {showDatePicker && (
+        <DateTimePicker
+          value={newDate}
+          mode="date"
+          display="calendar"
+          onChange={onChangeDate}
+        />
+      )}
 
-            <Pressable
-              style={styles.dateInput}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text>{formatDate(newDate)}</Text>
-            </Pressable>
+      {editingEvent ? (
+        <>
+          <Pressable
+            style={styles.addButton}
+            onPress={() =>
+              requestConfirmation(
+                'Confirmar Atualização',
+                'Tens a certeza que queres atualizar este evento?',
+                handleUpdateEvent
+              )
+            }
+          >
+            <Text style={styles.addButtonText}>Atualizar</Text>
+          </Pressable>
 
-            {showDatePicker && (
-              <DateTimePicker
-                value={newDate}
-                mode="date"
-                display="calendar"
-                onChange={onChangeDate}
-              />
-            )}
+          <Pressable
+            style={styles.deleteButton}
+            onPress={() =>
+              requestConfirmation(
+                'Confirmar Eliminação',
+                'Tens a certeza que queres eliminar este evento?',
+                handleDeleteEvent
+              )
+            }
+          >
+            <Text style={styles.deleteButtonText}>Eliminar</Text>
+          </Pressable>
+        </>
+      ) : (
+        <Pressable
+          style={styles.addButton}
+          onPress={() =>
+            requestConfirmation(
+              'Confirmar Adição',
+              'Tens a certeza que queres adicionar este evento?',
+              handleAddEvent
+            )
+          }
+        >
+          <Text style={styles.addButtonText}>Adicionar</Text>
+        </Pressable>
+      )}
 
-            {editingEvent ? (
-              <>
-                <Pressable style={styles.addButton} onPress={handleUpdateEvent}>
-                  <Text style={styles.addButtonText}>Atualizar</Text>
-                </Pressable>
+      <Pressable style={styles.cancelButton} onPress={closeModal}>
+        <Text>Cancelar</Text>
+      </Pressable>
+    </View>
+  </View>
+</Modal>
 
-                <Pressable style={styles.deleteButton} onPress={handleDeleteEvent}>
-                  <Text style={styles.deleteButtonText}>Eliminar</Text>
-                </Pressable>
-              </>
-            ) : (
-              <Pressable style={styles.addButton} onPress={handleAddEvent}>
-                <Text style={styles.addButtonText}>Adicionar</Text>
-              </Pressable>
-            )}
-
-            <Pressable style={styles.cancelButton} onPress={closeModal}>
-              <Text>Cancelar</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      {/* ConfirmModal */}
+      <ConfirmModal
+        visible={confirmVisible}
+        title={confirmTitle}
+        message={confirmMessage}
+        onConfirm={() => {
+          confirmAction();
+          setConfirmVisible(false);
+        }}
+        onCancel={() => setConfirmVisible(false)}
+      />
     </View>
   );
 }

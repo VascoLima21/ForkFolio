@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import usersData from '../../../data/users.json';
+import ConfirmModal from '../../components/ConfirmModal';
 
 type UserType = {
   id: number;
@@ -22,12 +23,26 @@ export default function ManageUsers() {
   const [users, setUsers] = useState<UserType[]>([]);
   const [search, setSearch] = useState('');
 
+  // Estado do modal de confirmação
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UserType | null>(null);
+
   useEffect(() => {
     setUsers(usersData.users);
   }, []);
 
-  const handleBan = (user: UserType) => {
-    console.log(`User ${user.name} banned`);
+  // Função para abrir confirmação
+  const requestConfirmation = (user: UserType) => {
+    setUserToDelete(user);
+    setConfirmVisible(true);
+  };
+
+  const handleBan = () => {
+    if (userToDelete) {
+      setUsers(users.filter(u => u.id !== userToDelete.id));
+      setConfirmVisible(false);
+      setUserToDelete(null);
+    }
   };
 
   const filteredUsers = users.filter(u =>
@@ -38,10 +53,8 @@ export default function ManageUsers() {
 
   return (
     <View style={styles.container}>
-      {/* Título centrado */}
       <Text style={styles.title}>Gerir Utilizadores</Text>
 
-      {/* Barra de pesquisa */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -52,13 +65,10 @@ export default function ManageUsers() {
         <MaterialIcons name="search" size={20} color="#666" style={styles.searchIcon} />
       </View>
 
-      {/* Subtítulo */}
       <Text style={styles.subtitle}>Lista de Utilizadores</Text>
 
-      {/* Tabela */}
       <ScrollView horizontal style={styles.tableContainer}>
         <View>
-          {/* Cabeçalho */}
           <View style={[styles.row, styles.headerRow]}>
             <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.id }]}>ID</Text>
             <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.username }]}>Username</Text>
@@ -67,7 +77,6 @@ export default function ManageUsers() {
             <Text style={[styles.headerCell, { width: COLUMN_WIDTHS.action }]}>Action</Text>
           </View>
 
-          {/* Conteúdo */}
           {filteredUsers.map(u => (
             <View key={u.id} style={styles.row}>
               <Text style={[styles.cell, { width: COLUMN_WIDTHS.id }]}>{u.id}</Text>
@@ -75,7 +84,7 @@ export default function ManageUsers() {
               <Text style={[styles.cell, { width: COLUMN_WIDTHS.email }]}>{u.email}</Text>
               <Text style={[styles.cell, { width: COLUMN_WIDTHS.role }]}>{u.role}</Text>
               <View style={[styles.cell, { width: COLUMN_WIDTHS.action }]}>
-                <Pressable style={styles.banButton} onPress={() => handleBan(u)}>
+                <Pressable style={styles.banButton} onPress={() => requestConfirmation(u)}>
                   <Text style={styles.banButtonText}>Ban</Text>
                 </Pressable>
               </View>
@@ -83,17 +92,28 @@ export default function ManageUsers() {
           ))}
         </View>
       </ScrollView>
+
+      {/* ConfirmModal */}
+      <ConfirmModal
+        visible={confirmVisible}
+        title="Confirmar Eliminação"
+        message={`Tens a certeza que queres eliminar o utilizador "${userToDelete?.name}"?`}
+        onConfirm={handleBan}
+        onCancel={() => setConfirmVisible(false)}
+        confirmText="Sim"
+        cancelText="Não"
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#BBCDB7' },
-  title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 40 }, // maior e mais espaçamento
+  title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 40 },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 40, // mais espaçamento
+    marginBottom: 40, 
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 12,
@@ -103,7 +123,7 @@ const styles = StyleSheet.create({
   },
   searchInput: { flex: 1, height: '100%', fontSize: 14 },
   searchIcon: { marginLeft: 8 },
-  subtitle: { fontSize: 18, fontWeight: '600', marginBottom: 16 }, // mais espaçamento
+  subtitle: { fontSize: 18, fontWeight: '600', marginBottom: 16 }, 
   tableContainer: { flex: 1 },
   row: {
     flexDirection: 'row',
@@ -112,9 +132,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
-  headerRow: {
-    backgroundColor: '#2EC4C6',
-  },
+  headerRow: { backgroundColor: '#2EC4C6' },
   headerCell: {
     padding: 6,
     textAlign: 'center',
