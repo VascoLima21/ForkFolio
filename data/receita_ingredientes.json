@@ -17,7 +17,7 @@
     { "recipeId": 2, "ingredientId": 15, "quantity": { "value": 750, "unit": "ml" } },
     { "recipeId": 2, "ingredientId": 16, "quantity": { "value": 1, "unit": "pitada" } },
 
-    { "recipeId": 3, "ingredientId": 6, "quantity": { "value": 1, "unit": "unidade grande" } },
+    { "recipeId": 3, "ingredientId": 6, "quantity": { "value": 1, "unit": "unidade" } },
     { "recipeId": 3, "ingredientId": 2, "quantity": { "value": 1, "unit": "unidade" } },
     { "recipeId": 3, "ingredientId": 3, "quantity": { "value": 2, "unit": "dentes" } },
     { "recipeId": 3, "ingredientId": 4, "quantity": { "value": 30, "unit": "ml" } },
