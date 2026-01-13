@@ -1,14 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import RecipeCard from '../../src/screens/Recipes/RecipeShow';
 
 import recipesData from '../../data/recipes.json';
 import userRecipesData from '../../data/user_recipes.json';
 
 export default function RecipesScreen() {
-  const userId = 1; // variável local (pode ser global/context)
+  const [userId, setUserId] = useState<number | null>(null);
 
-  // Filtrar receitas associadas ao utilizador
+  useEffect(() => {
+    const fetchUserId = async () => {
+      try {
+        const storedId = await AsyncStorage.getItem('@loggedUserId');
+        if (storedId) {
+          setUserId(Number(storedId));
+        }
+      } catch (error) {
+        console.error('Erro ao ler o ID do utilizador:', error);
+      }
+    };
+
+    fetchUserId();
+  }, []);
+
+  if (userId === null) {
+    return (
+      <View style={[styles.center, { flex: 1 }]}>
+        <Text>A carregar receitas...</Text>
+      </View>
+    );
+  }
+
   const userRecipeIds = userRecipesData.userRecipes
     .filter((ur) => ur.userId === userId)
     .map((ur) => ur.recipeId);
@@ -68,7 +91,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 24, // espaçamento entre linhas
+    marginBottom: 24,
   },
   center: {
     justifyContent: 'center',

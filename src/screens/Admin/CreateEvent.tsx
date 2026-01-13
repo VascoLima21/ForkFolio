@@ -1,8 +1,9 @@
 // ../../src/screens/admin/CreateEvent.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput, Modal, StyleSheet, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ConfirmModal from '../../components/ConfirmModal';
 
 type EventType = {
@@ -19,6 +20,8 @@ type AdminPanelProps = {
   setEvents: React.Dispatch<React.SetStateAction<EventType[]>>;
 };
 
+const STORAGE_KEY = 'EVENTS_DATA';
+
 export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingEvent, setEditingEvent] = useState<EventType | null>(null);
@@ -33,7 +36,19 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
   const [confirmMessage, setConfirmMessage] = useState('');
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
 
-  // Abrir modal de edição
+  useEffect(() => {
+    loadEvents();
+  });
+
+  const loadEvents = async () => {
+    const data = await AsyncStorage.getItem(STORAGE_KEY);
+    if (data) setEvents(JSON.parse(data));
+  };
+
+  const saveEvents = async (updatedEvents: EventType[]) => {
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEvents));
+  };
+
   const openEditModal = (event: EventType) => {
     setEditingEvent(event);
     setNewTitle(event.title);
@@ -58,8 +73,7 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
     setNewDate(new Date());
   };
 
-  // Adicionar evento
-  const handleAddEvent = () => {
+  const handleAddEvent = async () => {
     if (newTitle && newDescription && newDate) {
       const newEvent: EventType = {
         eventId: events.length > 0 ? events[events.length - 1].eventId + 1 : 1,
@@ -69,37 +83,41 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
         recipeId: Math.floor(Math.random() * 10000),
         createdAt: new Date().toISOString(),
       };
-      setEvents([...events, newEvent]);
+
+      const updated = [...events, newEvent];
+      setEvents(updated);
+      await saveEvents(updated);
       closeModal();
     }
   };
 
-  // Atualizar evento
-  const handleUpdateEvent = () => {
-    if (editingEvent && newTitle && newDescription && newDate) {
-      setEvents(events.map(ev =>
+  const handleUpdateEvent = async () => {
+    if (editingEvent) {
+      const updated = events.map(ev =>
         ev.eventId === editingEvent.eventId
           ? { ...ev, title: newTitle, description: newDescription, date: formatDate(newDate) }
           : ev
-      ));
+      );
+      setEvents(updated);
+      await saveEvents(updated);
       closeModal();
     }
   };
 
-  // Deletar evento
-  const handleDeleteEvent = () => {
+  const handleDeleteEvent = async () => {
     if (editingEvent) {
-      setEvents(events.filter(ev => ev.eventId !== editingEvent.eventId));
+      const updated = events.filter(ev => ev.eventId !== editingEvent.eventId);
+      setEvents(updated);
+      await saveEvents(updated);
       closeModal();
     }
   };
 
-  // Request confirmation before delete
   const requestConfirmation = (title: string, message: string, action: () => void) => {
     setConfirmTitle(title);
     setConfirmMessage(message);
     setConfirmAction(() => action);
-    setTimeout(() => setConfirmVisible(true), 0); // garante que título e mensagem aparecem
+    setTimeout(() => setConfirmVisible(true), 0);
   };
 
   const onChangeDate = (event: any, selectedDate?: Date) => {
@@ -114,7 +132,7 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
 
       <View style={styles.box}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          {events.map((event) => (
+          {events.map(event => (
             <View key={event.eventId} style={styles.eventCard}>
               <View style={styles.cardHeader}>
                 <Text style={styles.eventTitle}>{event.title}</Text>
@@ -133,98 +151,44 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
         <Text style={styles.createButtonText}>Criar Novo</Text>
       </Pressable>
 
-      <Modal
-  animationType="slide"
-  transparent={true}
-  visible={modalVisible}
-  onRequestClose={closeModal}
->
-  <View style={styles.modalOverlay}>
-    <View style={styles.modalContainer}>
-      <Text style={styles.modalTitle}>{editingEvent ? 'Editar Evento' : 'Novo Evento'}</Text>
+      {/* Modal de criação/edição */}
+      <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={closeModal}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>{editingEvent ? 'Editar Evento' : 'Novo Evento'}</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Título"
-        value={newTitle}
-        onChangeText={setNewTitle}
-        autoFocus
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Descrição"
-        value={newDescription}
-        onChangeText={setNewDescription}
-        multiline
-      />
+            <TextInput style={styles.input} placeholder="Título" value={newTitle} onChangeText={setNewTitle} />
+            <TextInput style={styles.input} placeholder="Descrição" value={newDescription} onChangeText={setNewDescription} multiline />
 
-      <Pressable
-        style={styles.dateInput}
-        onPress={() => setShowDatePicker(true)}
-      >
-        <Text>{formatDate(newDate)}</Text>
-      </Pressable>
+            <Pressable style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
+              <Text>{formatDate(newDate)}</Text>
+            </Pressable>
 
-      {showDatePicker && (
-        <DateTimePicker
-          value={newDate}
-          mode="date"
-          display="calendar"
-          onChange={onChangeDate}
-        />
-      )}
+            {showDatePicker && <DateTimePicker value={newDate} mode="date" display="calendar" onChange={onChangeDate} />}
 
-      {editingEvent ? (
-        <>
-          <Pressable
-            style={styles.addButton}
-            onPress={() =>
-              requestConfirmation(
-                'Confirmar Atualização',
-                'Tens a certeza que queres atualizar este evento?',
-                handleUpdateEvent
-              )
-            }
-          >
-            <Text style={styles.addButtonText}>Atualizar</Text>
-          </Pressable>
+            {editingEvent ? (
+              <>
+                <Pressable style={styles.addButton} onPress={() => requestConfirmation('Confirmar Atualização', 'Tens a certeza?', handleUpdateEvent)}>
+                  <Text style={styles.addButtonText}>Atualizar</Text>
+                </Pressable>
 
-          <Pressable
-            style={styles.deleteButton}
-            onPress={() =>
-              requestConfirmation(
-                'Confirmar Eliminação',
-                'Tens a certeza que queres eliminar este evento?',
-                handleDeleteEvent
-              )
-            }
-          >
-            <Text style={styles.deleteButtonText}>Eliminar</Text>
-          </Pressable>
-        </>
-      ) : (
-        <Pressable
-          style={styles.addButton}
-          onPress={() =>
-            requestConfirmation(
-              'Confirmar Adição',
-              'Tens a certeza que queres adicionar este evento?',
-              handleAddEvent
-            )
-          }
-        >
-          <Text style={styles.addButtonText}>Adicionar</Text>
-        </Pressable>
-      )}
+                <Pressable style={styles.deleteButton} onPress={() => requestConfirmation('Confirmar Eliminação', 'Tens a certeza?', handleDeleteEvent)}>
+                  <Text style={styles.deleteButtonText}>Eliminar</Text>
+                </Pressable>
+              </>
+            ) : (
+              <Pressable style={styles.addButton} onPress={() => requestConfirmation('Confirmar Adição', 'Tens a certeza?', handleAddEvent)}>
+                <Text style={styles.addButtonText}>Adicionar</Text>
+              </Pressable>
+            )}
 
-      <Pressable style={styles.cancelButton} onPress={closeModal}>
-        <Text>Cancelar</Text>
-      </Pressable>
-    </View>
-  </View>
-</Modal>
+            <Pressable style={styles.cancelButton} onPress={closeModal}>
+              <Text>Cancelar</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
 
-      {/* ConfirmModal */}
       <ConfirmModal
         visible={confirmVisible}
         title={confirmTitle}

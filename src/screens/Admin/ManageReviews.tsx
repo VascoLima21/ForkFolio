@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, Pressable, Modal } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import usersData from '../../../data/users.json';
 import eventsData from '../../../data/eventos.json';
 import reviewsData from '../../../data/reviews.json';
 import ConfirmModal from '../../components/ConfirmModal';
-
 
 type ReviewType = {
   id: number;
@@ -18,6 +18,8 @@ type ReviewType = {
   createdAt: string;
 };
 
+const STORAGE_KEY = 'REVIEWS_DATA';
+
 export default function ManageReviews() {
   const [reviews, setReviews] = useState<ReviewType[]>([]);
   const [users] = useState(usersData.users);
@@ -28,8 +30,24 @@ export default function ManageReviews() {
   const [confirmVisible, setConfirmVisible] = useState(false);
 
   useEffect(() => {
-    setReviews(reviewsData.reviews);
+    loadReviews();
   }, []);
+
+  const loadReviews = async () => {
+    const data = await AsyncStorage.getItem(STORAGE_KEY);
+
+    if (data) {
+      setReviews(JSON.parse(data));
+    } else {
+      setReviews(reviewsData.reviews);
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(reviewsData.reviews));
+    }
+  };
+
+  const saveReviews = async (updatedReviews: ReviewType[]) => {
+    setReviews(updatedReviews);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedReviews));
+  };
 
   const getUserName = (userId: number) =>
     users.find(u => u.id === userId)?.name ?? 'Desconhecido';
@@ -37,9 +55,12 @@ export default function ManageReviews() {
   const getEventTitle = (reviewId: number) =>
     events.find(e => e.eventId === reviewId)?.title ?? 'Desconhecido';
 
-  const deleteReview = () => {
+  const deleteReview = async () => {
     if (!selectedReview) return;
-    setReviews(prev => prev.filter(r => r.id !== selectedReview.id));
+
+    const updated = reviews.filter(r => r.id !== selectedReview.id);
+    await saveReviews(updated);
+
     setModalVisible(false);
     setSelectedReview(null);
   };
@@ -106,7 +127,6 @@ export default function ManageReviews() {
 
                   <Text style={styles.modalLabel}>Avaliação</Text>
 
-                  {/* Perguntas 1 e 2 com círculos */}
                   <Text style={[styles.question, styles.questionWithMargin]}>
                     1. Como avalias a organização do evento?
                   </Text>
@@ -117,7 +137,6 @@ export default function ManageReviews() {
                   </Text>
                   {renderRatingCircles(selectedReview.question2)}
 
-                  {/* Perguntas 3 a 5 normais */}
                   <Text style={styles.question}>3. O que mais gostaste no evento?</Text>
                   <View style={styles.answerBox}><Text>{selectedReview.question3}</Text></View>
 
@@ -129,11 +148,7 @@ export default function ManageReviews() {
                     <Text>{selectedReview.question5 ? 'Sim' : 'Não'}</Text>
                   </View>
 
-                  {/* Modal de confirmação */}
-                  <Pressable
-                    style={styles.deleteButton}
-                    onPress={() => setConfirmVisible(true)}
-                  >
+                  <Pressable style={styles.deleteButton} onPress={() => setConfirmVisible(true)}>
                     <Text style={styles.buttonText}>Eliminar Review</Text>
                   </Pressable>
 
@@ -152,6 +167,7 @@ export default function ManageReviews() {
           </View>
         </View>
       </Modal>
+
       <ConfirmModal
         visible={confirmVisible}
         title="Tens a certeza?"
@@ -165,12 +181,12 @@ export default function ManageReviews() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#BBCDB7' },
   title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 40 },
   subtitle: { fontSize: 18, fontWeight: '600', marginBottom: 16 },
   box: { width: '100%', height: 440, backgroundColor: '#fff', borderRadius: 20, padding: 14 },
+
   reviewCard: {
     backgroundColor: '#E0F7FA',
     borderRadius: 16,
@@ -178,9 +194,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     alignItems: 'center',
   },
+
   cardTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 6 },
   date: { fontSize: 12, color: '#666', marginBottom: 10 },
   userName: { alignSelf: 'flex-start', fontWeight: '600', fontSize: 15, marginBottom: 10 },
+
   commentBox: {
     width: '100%',
     backgroundColor: '#fff',
@@ -190,20 +208,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
   },
+
   comment: { fontSize: 14 },
+
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   modalBox: { width: '85%', height: 520, backgroundColor: '#fff', borderRadius: 20, padding: 20 },
+
   modalTitle: { fontSize: 22, fontWeight: 'bold', textAlign: 'center' },
   modalDate: { textAlign: 'center', color: '#666', marginBottom: 10 },
   modalAuthor: { fontWeight: '600', marginBottom: 10 },
+
   modalLabel: { marginTop: 10, fontWeight: 'bold' },
+
   question: { fontWeight: '600', marginTop: 12, marginBottom: 4 },
-  questionWithMargin: { marginBottom: 8 }, 
+  questionWithMargin: { marginBottom: 8 },
+
   answerBox: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -212,6 +237,7 @@ const styles = StyleSheet.create({
     marginVertical: 6,
     backgroundColor: '#F5F7F4',
   },
+
   closeButton: {
     backgroundColor: '#2EC4C6',
     padding: 12,
@@ -219,6 +245,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+
   deleteButton: {
     backgroundColor: '#FF4C4C',
     padding: 12,
@@ -226,25 +253,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 16,
   },
-  confirmBox: {
-    width: '75%',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    alignItems: 'center',
-  },
-  confirmTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
-  confirmText: { textAlign: 'center', marginBottom: 20, color: '#555' },
-  confirmButtons: { flexDirection: 'row', width: '100%', justifyContent: 'space-between' },
-  confirmButton: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginHorizontal: 4,
-  },
+
   buttonText: { color: '#fff', fontWeight: '600' },
+
   circleContainer: { flexDirection: 'row', marginTop: 4, marginBottom: 10 },
+
   circle: {
     width: 18,
     height: 18,
@@ -253,6 +266,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
   },
+
   circleFilled: { backgroundColor: '#2EC4C6', borderColor: '#2EC4C6' },
   circleEmpty: { backgroundColor: '#fff', borderColor: '#ccc' },
 });

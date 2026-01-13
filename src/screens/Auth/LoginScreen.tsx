@@ -1,25 +1,33 @@
 import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import usersData from '@/data/users.json';
-
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-  const user = usersData.users.find(
-    (u) => u.email === email && u.password === password
-  );
+  const handleLogin = async () => {
+    const user = usersData.users.find(
+      (u) => u.email === email && u.password === password
+    );
 
-  if (!user) {
-    Alert.alert('Erro', 'Email ou password incorretos');
-    return;
-  }
+    if (!user) {
+      Alert.alert('Erro', 'Email ou password incorretos');
+      return;
+    }
 
-  router.replace('/home');
-};
+    try {
+      // Guardar o ID do utilizador no AsyncStorage
+      await AsyncStorage.setItem('@loggedUserId', user.id.toString());
+      // Redirecionar para a página inicial
+      router.replace('/home');
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível guardar a sessão');
+      console.error(error);
+    }
+  };
 
   return (
     <View style={styles.container}>

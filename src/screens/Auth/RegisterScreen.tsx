@@ -1,38 +1,82 @@
 import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+type UserType = {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+};
 
 export default function RegisterScreen() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [users, setUsers] = useState<UserType[]>([]);
 
-  const isValidEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const storedUsers = await AsyncStorage.getItem('@users');
+        if (storedUsers) {
+          setUsers(JSON.parse(storedUsers));
+        }
+      } catch (error) {
+        console.error('Erro ao ler utilizadores do AsyncStorage:', error);
+      }
+    };
 
-  const handleRegister = () => {
+    fetchUsers();
+  }, []);
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const handleRegister = async () => {
     if (!username || !email || !password || !confirmPassword) {
       Alert.alert('Erro', 'Preenche todos os campos');
       return;
     }
-
     if (!isValidEmail(email)) {
       Alert.alert('Erro', 'Email inválido');
       return;
     }
-
     if (password !== confirmPassword) {
       Alert.alert('Erro', 'As passwords não coincidem');
       return;
     }
+    if (users.some(u => u.email === email)) {
+      Alert.alert('Erro', 'Email já registado');
+      return;
+    }
+    const newId = users.length > 0 ? users[users.length - 1].id + 1 : 1;
 
-    Alert.alert(
-      'Sucesso',
-      'Conta criada com sucesso',
-      [{ text: 'OK', onPress: () => router.replace('/home') }]
-    );
+    const newUser: UserType = {
+      id: newId,
+      name: username,
+      email,
+      password,
+      role: 'user', 
+    };
+
+    const updatedUsers = [...users, newUser];
+
+    try {
+      // Guardar lista de utilizadores atualizada
+      await AsyncStorage.setItem('@users', JSON.stringify(updatedUsers));
+      // Guardar ID do utilizador que acabou de registar
+      await AsyncStorage.setItem('@loggedUserId', newId.toString());
+
+      Alert.alert(
+        'Sucesso',
+        'Conta criada com sucesso!',
+        [{ text: 'OK', onPress: () => router.replace('/home') }]
+      );
+    } catch (error) {
+      console.error('Erro ao guardar utilizador no AsyncStorage:', error);
+      Alert.alert('Erro', 'Não foi possível criar a conta');
+    }
   };
 
   return (
@@ -46,7 +90,6 @@ export default function RegisterScreen() {
         autoCapitalize="none"
         style={styles.input}
       />
-
 
       <TextInput
         placeholder="Email"
