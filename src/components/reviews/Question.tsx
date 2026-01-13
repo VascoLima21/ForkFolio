@@ -8,7 +8,7 @@ interface QuestionProps {
   onChange: (id: number, value: any) => void;
 }
 
-export const Question = ({ question, value, onChange }: QuestionProps) => {    
+export const Question = ({ question, value, onChange }: QuestionProps) => {
   return (
     <View>
       {/* Question Number */}
@@ -55,7 +55,7 @@ export const Question = ({ question, value, onChange }: QuestionProps) => {
       {question.type === "choice" && question.options && (
         <View style={{ flexDirection: 'row', marginTop: 12 }}>
           {question.options.map((option) => {
-            const val = option === "Yes"; // example mapping
+            const val = option === "Yes";
             return (
               <Pressable
                 key={option}

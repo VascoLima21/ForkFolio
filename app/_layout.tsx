@@ -1,10 +1,17 @@
 import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { View, ActivityIndicator } from 'react-native';
+import { useEffect } from 'react';
 import { fonts } from '@/src/fonts';
+import { initStorage } from '@/src/utils/init';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts(fonts);
+
+  // Initialize AsyncStorage data on app start
+  useEffect(() => {
+    initStorage();
+  }, []);
 
   if (!fontsLoaded) {
     return (

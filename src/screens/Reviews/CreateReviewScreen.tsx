@@ -1,15 +1,21 @@
 import { View, ScrollView, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
+import { useLocalSearchParams, router } from 'expo-router';
+
 import reviewQuestionsJson from '@/data/reviewQuestions.json';
-import reviewsData from '@/data/reviews.json';
+import { getEventById } from '@/src/utils/events';
+import { getItem, setItem } from '@/src/utils/storage';
+
 import { Question } from '@/src/components/reviews/Question';
 import { ProgressBar } from '@/src/components/reviews/ProgressBar';
 import { NavigationButtons } from '@/src/components/reviews/NavigationButtons';
-import { createReview } from '@/src/utils/reviewUtils';
+import { createReview } from '@/src/utils/reviews';
 import { Question as QuestionType } from '@/src/types/questionTypes';
 
 export default function CreateReviewScreen() {
+  const { eventId } = useLocalSearchParams<{ eventId: string}>();
+
   const [step, setStep] = useState(0);
 
   // Cast JSON questions to typed Question[]
@@ -33,16 +39,44 @@ export default function CreateReviewScreen() {
   };
 
   // Submit review
-  const handleSubmit = () => {
-    const updatedReviews = createReview(review, reviewsData.reviews, 3);
-    console.log('New reviews array:', updatedReviews);
+  const handleSubmit = async () => {
+    try {
+      const userId = 1; // replace with user logged when ready
+      const numericEventId = Number(eventId)      
+          
+      const event = await getEventById(numericEventId)
+      
+      const recipeId = event.recipeId;
 
-    // Reset form
-    setStep(0);
-    setReview(initialReview);
+      // Creates the review and stores in AsyncStorage            
+      const newReview = await createReview(review, userId, recipeId);
+      console.log('New Review Created:', newReview);
+
+      // Updates the userRecipes, adding the new userRecipe
+      const storedUserRecipes = (await getItem('user_recipes')) || [];
+      
+      const userRecipes = Array(storedUserRecipes)
+      
+      const newUserRecipe = {
+        id: userRecipes.length + 1,
+        userId,
+        recipeId,
+        assignedAt: new Date().toISOString(),
+      };
+      await setItem('user_recipes', [...userRecipes, newUserRecipe]);
+
+      // Resets form
+      setStep(0);
+      setReview(initialReview);
+
+      // Goes to the review complete screen
+      router.push('/reviews/reviewComplete');
+    } catch (error) {
+      console.error('Error submitting review:', error);
+    }
   };
 
-  // Group questions per page: two per page, last page may have only one
+  // Group questions per page: two per page, last page has only one because there are five questions in the data
   const questionsPerPage = 2;
   const totalPages = Math.ceil(reviewQuestions.questions.length / questionsPerPage);
   const startIndex = step * questionsPerPage;
@@ -53,8 +87,8 @@ export default function CreateReviewScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      {/* Progress Bar */}
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 32 }}>
-        {/* Progress Bar */}
         <ProgressBar step={step} />
 
         {/* Event Header */}
