@@ -4,7 +4,9 @@ import { View, Text, Pressable, ScrollView, TextInput, Modal, StyleSheet, Platfo
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Picker } from '@react-native-picker/picker';
 import ConfirmModal from '../../components/ConfirmModal';
+import recipesData from '../../../data/recipes.json';
 
 type EventType = {
   eventId: number;
@@ -28,6 +30,7 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [newDate, setNewDate] = useState(new Date());
+  const [selectedRecipeId, setSelectedRecipeId] = useState<number | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   // ConfirmModal states
@@ -55,6 +58,7 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
     setNewDescription(event.description);
     const [day, month, year] = event.date.split('/');
     setNewDate(new Date(+year, +month - 1, +day));
+    setSelectedRecipeId(event.recipeId);
     setModalVisible(true);
   };
 
@@ -71,16 +75,17 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
     setNewTitle('');
     setNewDescription('');
     setNewDate(new Date());
+    setSelectedRecipeId(null);
   };
 
   const handleAddEvent = async () => {
-    if (newTitle && newDescription && newDate) {
+    if (newTitle && newDescription && newDate && selectedRecipeId) {
       const newEvent: EventType = {
         eventId: events.length > 0 ? events[events.length - 1].eventId + 1 : 1,
         title: newTitle,
         description: newDescription,
         date: formatDate(newDate),
-        recipeId: Math.floor(Math.random() * 10000),
+        recipeId: selectedRecipeId,
         createdAt: new Date().toISOString(),
       };
 
@@ -92,10 +97,10 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
   };
 
   const handleUpdateEvent = async () => {
-    if (editingEvent) {
+    if (editingEvent && selectedRecipeId) {
       const updated = events.map(ev =>
         ev.eventId === editingEvent.eventId
-          ? { ...ev, title: newTitle, description: newDescription, date: formatDate(newDate) }
+          ? { ...ev, title: newTitle, description: newDescription, date: formatDate(newDate), recipeId: selectedRecipeId }
           : ev
       );
       setEvents(updated);
@@ -121,8 +126,12 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
   };
 
   const onChangeDate = (event: any, selectedDate?: Date) => {
+    if (event.type === 'dismissed') {
+      setShowDatePicker(false);
+      return;
+    }
     const currentDate = selectedDate || newDate;
-    setShowDatePicker(Platform.OS === 'ios');
+    setShowDatePicker(Platform.OS === 'ios'); // mantém aberto no iOS, fecha no Android
     setNewDate(currentDate);
   };
 
@@ -151,7 +160,6 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
         <Text style={styles.createButtonText}>Criar Novo</Text>
       </Pressable>
 
-      {/* Modal de criação/edição */}
       <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={closeModal}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -165,6 +173,20 @@ export default function AdminPanel({ events, setEvents }: AdminPanelProps) {
             </Pressable>
 
             {showDatePicker && <DateTimePicker value={newDate} mode="date" display="calendar" onChange={onChangeDate} />}
+
+            {/* Picker de receitas */}
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedRecipeId}
+                onValueChange={(itemValue) => setSelectedRecipeId(itemValue)}
+                style={{ height: 50 }}
+              >
+                <Picker.Item label="Seleciona uma receita" value={null} />
+                {recipesData.recipes.map(recipe => (
+                  <Picker.Item key={recipe.recipeId} label={recipe.name} value={recipe.recipeId} />
+                ))}
+              </Picker>
+            </View>
 
             {editingEvent ? (
               <>
@@ -218,8 +240,9 @@ const styles = StyleSheet.create({
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContainer: { width: '85%', backgroundColor: '#fff', borderRadius: 16, padding: 20 },
   modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 16, textAlign: 'center' },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 12, padding: 10, marginBottom: 12 },
-  dateInput: { borderWidth: 1, borderColor: '#ccc', borderRadius: 12, padding: 10, marginBottom: 12, justifyContent: 'center' },
+  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 12, padding: 10, marginBottom: 12 , height: 60},
+  dateInput: { borderWidth: 1, borderColor: '#ccc', borderRadius: 12, padding: 10, marginBottom: 12, justifyContent: 'center' , height: 60},
+  pickerContainer: { borderWidth: 1, borderColor: '#ccc', borderRadius: 12, marginBottom: 12, height: 60, justifyContent: 'center', paddingHorizontal: 10 },
   addButton: { backgroundColor: '#2EC4C6', paddingVertical: 12, borderRadius: 16, alignItems: 'center', marginBottom: 10 },
   addButtonText: { color: '#fff', fontWeight: '600' },
   deleteButton: { backgroundColor: '#FF4C4C', paddingVertical: 12, borderRadius: 16, alignItems: 'center', marginBottom: 10 },
