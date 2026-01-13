@@ -1,0 +1,97 @@
+import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import usersData from '@/data/users.json';
+
+export default function LoginScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    const user = usersData.users.find(
+      (u) => u.email === email && u.password === password
+    );
+
+    if (!user) {
+      Alert.alert('Erro', 'Email ou password incorretos');
+      return;
+    }
+
+    try {
+      // Guardar o ID do utilizador no AsyncStorage
+      await AsyncStorage.setItem('@loggedUserId', user.id.toString());
+      // Redirecionar para a página inicial
+      router.replace('/home');
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível guardar a sessão');
+      console.error(error);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Login</Text>
+
+      <TextInput
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        style={styles.input}
+      />
+
+      <TextInput
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        style={styles.input}
+      />
+
+      <Pressable style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Entrar</Text>
+      </Pressable>
+
+      <Pressable onPress={() => router.push('/auth/register')}>
+        <Text style={styles.link}>Criar conta</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 24,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 32,
+    textAlign: 'center',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  button: {
+    backgroundColor: '#111',
+    padding: 14,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  buttonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  link: {
+    textAlign: 'center',
+    color: '#007AFF',
+  },
+});

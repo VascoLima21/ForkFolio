@@ -1,9 +1,5 @@
-import { Text, View } from 'react-native';
+import RegisterScreen from '@/src/screens/Auth/RegisterScreen';
 
-export default function RegisterScreen() {
-    return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>Register</Text>
-        </View>
-    );
+export default function RegisterRoute() {
+  return <RegisterScreen />;
 }

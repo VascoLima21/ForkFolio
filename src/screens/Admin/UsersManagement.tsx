@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import usersData from '../../../data/users.json';
 import ConfirmModal from '../../components/ConfirmModal';
 
@@ -19,31 +21,48 @@ const COLUMN_WIDTHS = {
   action: 60,
 };
 
+const STORAGE_KEY = '@users';
+
 export default function ManageUsers() {
   const [users, setUsers] = useState<UserType[]>([]);
   const [search, setSearch] = useState('');
 
-  // Estado do modal de confirmação
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [userToDelete, setUserToDelete] = useState<UserType | null>(null);
 
+  // CARREGAR USERS
   useEffect(() => {
-    setUsers(usersData.users);
+    const loadUsers = async () => {
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        setUsers(JSON.parse(stored));
+      } else {
+        setUsers(usersData.users);
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(usersData.users));
+      }
+    };
+    loadUsers();
   }, []);
 
-  // Função para abrir confirmação
+  // GUARDAR USERS NO STORAGE
+  useEffect(() => {
+    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+  }, [users]);
+
+  // CONFIRMAÇÃO BAN
   const requestConfirmation = (user: UserType) => {
     setUserToDelete(user);
     setConfirmVisible(true);
   };
 
   const handleBan = () => {
-    if (userToDelete) {
-      setUsers(users.filter(u => u.id !== userToDelete.id));
-      setConfirmVisible(false);
-      setUserToDelete(null);
-    }
+    if (!userToDelete) return;
+    setUsers(prev => prev.filter(u => u.id !== userToDelete.id));
+    setConfirmVisible(false);
+    setUserToDelete(null);
   };
+
+
 
   const filteredUsers = users.filter(u =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -55,6 +74,7 @@ export default function ManageUsers() {
     <View style={styles.container}>
       <Text style={styles.title}>Gerir Utilizadores</Text>
 
+      {/* PESQUISA */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -93,7 +113,6 @@ export default function ManageUsers() {
         </View>
       </ScrollView>
 
-      {/* ConfirmModal */}
       <ConfirmModal
         visible={confirmVisible}
         title="Confirmar Eliminação"
@@ -109,11 +128,21 @@ export default function ManageUsers() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#BBCDB7' },
-  title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 40 },
+  title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
+
+  resetButton: {
+    backgroundColor: '#000',
+    padding: 10,
+    borderRadius: 10,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  resetText: { color: '#fff', fontWeight: '600' },
+
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 40, 
+    marginBottom: 40,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 12,
@@ -121,10 +150,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     height: 40,
   },
+
   searchInput: { flex: 1, height: '100%', fontSize: 14 },
   searchIcon: { marginLeft: 8 },
-  subtitle: { fontSize: 18, fontWeight: '600', marginBottom: 16 }, 
+  subtitle: { fontSize: 18, fontWeight: '600', marginBottom: 16 },
   tableContainer: { flex: 1 },
+
   row: {
     flexDirection: 'row',
     borderBottomWidth: 1,
@@ -132,7 +163,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
+
   headerRow: { backgroundColor: '#2EC4C6' },
+
   headerCell: {
     padding: 6,
     textAlign: 'center',
@@ -140,6 +173,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 12,
   },
+
   cell: {
     padding: 6,
     textAlign: 'center',
@@ -147,6 +181,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#000',
   },
+
   banButton: {
     flex: 1,
     width: 45,
@@ -156,5 +191,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   banButtonText: { color: '#fff', fontWeight: '600', fontSize: 12 },
 });
