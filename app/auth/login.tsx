@@ -1,15 +1,5 @@
-// app/(tabs)/home.tsx
-import { Text, View, Button } from 'react-native';
-import { router } from 'expo-router';
+import LoginScreen from '@/src/screens/Auth/LoginScreen';
 
-export default function LoginScreen() {
-    return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>Login</Text>
-            <Button
-                title="Login"
-                onPress={() => router.replace('/(tabs)/home')}
-            />
-        </View>
-    );
+export default function LoginRoute() {
+  return <LoginScreen />;
 }
