@@ -1,4 +1,5 @@
 import { ScrollView, StyleSheet, ActivityIndicator, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -41,30 +42,48 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: '#BBCDB7' }}
+        edges={['top']}  
+      >
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" />
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.scrollContainer}
-      showsVerticalScrollIndicator={false}
-    >
-      {mode === 'admin' ? <AdminHome /> : <ClientHome />}
-    </ScrollView>
+    <SafeAreaView
+        style={{ flex: 1, backgroundColor: '#BBCDB7' }}
+        edges={['top']}  
+      >
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {mode === 'admin' ? <AdminHome /> : <ClientHome />}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
     backgroundColor: '#BBCDB7',
   },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  container: {
+    flex: 1,
+  },
   scrollContainer: {
     padding: 24,
-    paddingBottom: 40,
+    paddingBottom: 24,
   },
 });

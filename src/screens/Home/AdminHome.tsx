@@ -9,7 +9,7 @@ const screenWidth = Dimensions.get('window').width;
 
 export default function AdminHome() {
   // ----------------------------
-  // 1️⃣ Registos de utilizadores por mês
+  // Registos de utilizadores por mês
   // ----------------------------
   const getRegistrationsPerMonth = () => {
     const counts: Record<string, number> = {};
@@ -29,7 +29,7 @@ export default function AdminHome() {
   const { labels: userLabels, data: userData } = getRegistrationsPerMonth();
 
   // ----------------------------
-  // 2️⃣ Últimos 5 eventos e reviews
+  // Últimos 5 eventos e reviews
   // ----------------------------
   const lastFiveEvents = eventsData.events
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -45,9 +45,6 @@ export default function AdminHome() {
 
   const chartWidth = Math.max(screenWidth - 64, eventLabels.length * 90);
 
-  // ----------------------------
-  // Render
-  // ----------------------------
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* CARD 1 — Line Chart */}
