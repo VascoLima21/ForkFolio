@@ -1,8 +1,15 @@
 import { getItem, setItem } from './storage';
 
+/**
+ * FETCH REVIEWS
+ * Retrieves reviews, handling both direct array format 
+ * and the object wrapper format found in your JSON file.
+ */
 export const getReviews = async () => {
   const data = await getItem('reviews');
-  return Array.isArray(data) ? data : [];
+  // Checks if data is wrapped in { reviews: [...] } or is already an array
+  const reviewsArray = data?.reviews ? data.reviews : data;
+  return Array.isArray(reviewsArray) ? reviewsArray : [];
 };
 
 export const getReviewById = async (reviewId: number) => {
@@ -10,6 +17,11 @@ export const getReviewById = async (reviewId: number) => {
   return reviews.find((r: any) => r.id === reviewId) || null;
 };
 
+/**
+ * CREATE REVIEW
+ * Transforms the input answer object (e.g., { 6: "Text" }) 
+ * into the flat JSON format (e.g., { "question6": "Text" }).
+ */
 export const createReview = async (
   answers: Record<number, any>,
   userId: number,
@@ -18,18 +30,30 @@ export const createReview = async (
 ) => {
   const reviewsData = await getReviews();
 
+  // TRANSFORMER logic:
+  const formattedAnswers: Record<string, any> = {};
+  
+  // Iterate over keys (1, 2, ... 6) and create "question1", "question2"...
+  Object.keys(answers).forEach((key) => {
+    formattedAnswers[`question${key}`] = answers[Number(key)];
+  });
+
   const newReview = {
     id: reviewsData.length + 1,
+    // Just for consistency with your JSON sample which has both id and reviewId
+    reviewId: reviewsData.length + 1, 
     userId,
-    recipeId,
-    // Storing the entire answers object
-    answers: answers, 
+    recipeId, // Maps to the event/recipe
+    ...formattedAnswers, // Spreads question1, question6, etc. to the root
     isAnonymous,
     createdAt: new Date().toISOString(),
   };
 
   const updatedReviews = [...reviewsData, newReview];
-  await setItem('reviews', updatedReviews);
+  
+  // Saves directly as an array (or wrap in { reviews: updatedReviews } if you prefer strict JSON match)
+  await setItem('reviews', updatedReviews); 
 
+  console.log("Saved Review Structure:", newReview);
   return newReview;
 };
