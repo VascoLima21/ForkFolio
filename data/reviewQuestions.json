@@ -3,15 +3,15 @@
     {
       "id": 1,
       "type": "rating",
-      "title": "How would you describe your experience?",
-      "minLabel": "Not very satisfied",
-      "maxLabel": "Very satisfied",
+      "title": "Como é que descreverias a tua experiência?",
+      "minLabel": "Pouca Satisfação",
+      "maxLabel": "Muita Satisfação",
       "maxValue": 5
     },
     {
       "id": 2,
       "type": "slider",
-      "title": "How would you classify the students’ performance?",
+      "title": "Como classificarias a performance dos alunos?",
       "minValue": 1,
       "maxValue": 5,
       "step": 1
@@ -19,18 +19,23 @@
     {
       "id": 3,
       "type": "text",
-      "title": "What did you like the most?"
+      "title": "O que é que gostaste mais no serviço?"
     },
     {
       "id": 4,
       "type": "text",
-      "title": "What could be improved?"
+      "title": "O que poderia ser melhorado no serviço?"
     },
     {
       "id": 5,
       "type": "choice",
-      "title": "Would you recommend this service?",
-      "options": ["Yes", "No"]
+      "title": "Recomendarias este serviço a outras pessoas?",
+      "options": ["Sim", "Não"]
+    },
+    {
+      "id": 6,
+      "type": "text",
+      "title": "Comentários da experiência em geral (Opcional)"
     }
   ]
 }

@@ -11,28 +11,24 @@ export const getReviewById = async (reviewId: number) => {
 };
 
 export const createReview = async (
-  review: Record<number, any>,
+  answers: Record<number, any>,
   userId: number,
-  recipeId: number
+  recipeId: number,
+  isAnonymous: boolean
 ) => {
-  // Always guarantee an array
-  const storedReviews = await getItem('reviews');
-  const reviewsData = Array.isArray(storedReviews) ? storedReviews : [];
+  const reviewsData = await getReviews();
 
   const newReview = {
     id: reviewsData.length + 1,
     userId,
     recipeId,
-    question1: review[1],
-    question2: review[2],
-    question3: review[3],
-    question4: review[4],
-    question5: review[5],
+    // Storing the entire answers object
+    answers: answers, 
+    isAnonymous,
     createdAt: new Date().toISOString(),
   };
 
   const updatedReviews = [...reviewsData, newReview];
-
   await setItem('reviews', updatedReviews);
 
   return newReview;
