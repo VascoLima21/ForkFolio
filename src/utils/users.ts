@@ -1,11 +1,11 @@
 import { getItem, setItem } from './storage';
 
 export const getUsers = async () => {
-  return (await getItem('users')) || [];
+  return (await getItem('users')).users || [];
 };
 
 export const getUserById = async (userId: number) => {
-  const users = await getUsers();
+  const users = await getUsers();  
   return users.find((u: any) => u.id === userId) || null;
 };
 
