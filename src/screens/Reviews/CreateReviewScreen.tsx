@@ -23,10 +23,7 @@ export default function CreateReviewScreen() {
     questions: reviewQuestionsJson.questions as QuestionType[],
   };
 
-  /**
-   * STATE INITIALIZATION:
-   * Dynamically creates the initial state object based on JSON IDs and types.
-   */
+  // INITIAL STATE SETUP
   const initialReview: Record<number, any> = {};
   reviewQuestions.questions.forEach((q) => {
     if (q.type === 'rating' || q.type === 'slider') initialReview[q.id] = 0;
@@ -47,16 +44,12 @@ export default function CreateReviewScreen() {
       const event = await getEventById(numericEventId);
       const recipeId = event.recipeId;
 
-      /** * PERSISTENCE: 
-       * Saves the review answers and the privacy preference (isAnonymous).
+      /** * SAVE ACTION: 
+       * Calls the utility which now correctly maps answers to "questionX" keys.
        */
-      const newReview = await createReview(review, userId, recipeId, isAnonymous);
-      console.log(newReview);
-      
-      
-      /** * LOCAL SYNC: 
-       * Updates local user history to mark this recipe as reviewed/completed.
-       */
+      await createReview(review, userId, recipeId, isAnonymous);
+
+      // Update User History Logic (User_Recipes)
       const storedUserRecipes = (await getItem('user_recipes')) || [];
       const newUserRecipe = {
         id: storedUserRecipes.length + 1,
@@ -66,7 +59,7 @@ export default function CreateReviewScreen() {
       };
       await setItem('user_recipes', [...storedUserRecipes, newUserRecipe]);
 
-      // Reset state and redirect to success screen
+      // Reset & Navigate
       setStep(0);
       setReview(initialReview);
       setIsAnonymous(false);
@@ -76,48 +69,32 @@ export default function CreateReviewScreen() {
     }
   };
 
-  /**
-   * PAGINATION LOGIC:
-   * Splits the questions array into chunks (2 per page).
-   */
+  // Pagination Logic
   const questionsPerPage = 2;
   const totalPages = Math.ceil(reviewQuestions.questions.length / questionsPerPage);
   const startIndex = step * questionsPerPage;
-  const pageQuestions: QuestionType[] = reviewQuestions.questions.slice(
-    startIndex,
-    startIndex + questionsPerPage
-  );
+  const pageQuestions = reviewQuestions.questions.slice(startIndex, startIndex + questionsPerPage);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 32 }}>
         <ProgressBar step={step} />
-
+        
         <View style={styles.headerContainer}>
-          <Text style={styles.eventTitle}>Confraria da Abóbora</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={styles.eventSubtitle}>Dinner - </Text>
-            <Text style={styles.eventSubtitle}>24/10/2026</Text>
-          </View>
+          <Text style={styles.eventTitle}>Review do Evento</Text>
         </View>
 
-        {/* Render current page questions */}
         {pageQuestions.map((q) => (
           <View key={q.id} style={{ marginBottom: 32 }}>
-            <Question 
-               question={q} 
-               value={review[q.id]} 
-               onChange={handleChange} 
-            />
+            <Question question={q} value={review[q.id]} onChange={handleChange} />
           </View>
         ))}
 
-        {/* PRIVACY TOGGLE: Only visible on the final step of the form */}
         {step === totalPages - 1 && (
           <View style={styles.anonymousCard}>
             <View style={{ flex: 1 }}>
               <Text style={styles.anonymousLabel}>Submeter como anónimo?</Text>
-              <Text style={styles.anonymousSub}>O teu nome não será visível para os outros alunos.</Text>
+              <Text style={styles.anonymousSub}>O teu nome será ocultado.</Text>
             </View>
             <Switch
               value={isAnonymous}
@@ -143,44 +120,10 @@ export default function CreateReviewScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerContainer: { 
-    marginBottom: 24, 
-    alignItems: 'center' 
-  },
-  eventTitle: { 
-    fontFamily: 'georamaSemiBold', 
-    fontSize: 20, 
-    marginBottom: 6 
-  },
-  eventSubtitle: { 
-    fontFamily: 'livvicRegular', 
-    fontSize: 14, 
-    color: '#666' 
-  },
-  anonymousCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#eee',
-    marginTop: 10
-  },
-  anonymousLabel: { 
-    fontFamily: 'georamaSemiBold', 
-    fontSize: 16, 
-    color: '#333' 
-  },
-  anonymousSub: { 
-    fontFamily: 'livvicRegular', 
-    fontSize: 12, 
-    color: '#777',
-    marginTop: 2
-  },
-  footer: { 
-    padding: 20, 
-    borderTopWidth: 1, 
-    borderTopColor: '#eee' 
-  }
+  headerContainer: { marginBottom: 24, alignItems: 'center' },
+  eventTitle: { fontFamily: 'georamaSemiBold', fontSize: 20, marginBottom: 6 },
+  anonymousCard: { flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: '#f8f9fa', borderRadius: 12, borderWidth: 1, borderColor: '#eee', marginTop: 10 },
+  anonymousLabel: { fontFamily: 'georamaSemiBold', fontSize: 16, color: '#333' },
+  anonymousSub: { fontFamily: 'livvicRegular', fontSize: 12, color: '#777', marginTop: 2 },
+  footer: { padding: 20, borderTopWidth: 1, borderTopColor: '#eee' }
 });

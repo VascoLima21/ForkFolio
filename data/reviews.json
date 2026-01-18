@@ -9,6 +9,8 @@
       "question3": "Gostei muito da organização e do ambiente.",
       "question4": "A comida estava excelente.",
       "question5": true,
+      "question6": "Excelent serviço, excelente comida, estes estudantes vão longe!",
+      "isAnonymous": false,
       "createdAt": "2025-03-15T18:45:00Z"
     },
     {
@@ -20,6 +22,8 @@
       "question3": "O evento foi interessante.",
       "question4": "Podia ter mais opções vegetarianas.",
       "question5": false,
+      "question6": "Embora o serviço tenha sido bom, a falta de opções vegetarianas foi um aspeto crítico.",
+      "isAnonymous": false,
       "createdAt": "2025-04-10T20:10:00Z"
     }
   ]
