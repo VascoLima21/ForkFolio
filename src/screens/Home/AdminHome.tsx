@@ -1,6 +1,6 @@
+// src/screens/Home/AdminHome.tsx
 import { Text, StyleSheet, Dimensions, ScrollView, View } from 'react-native';
-import { LineChart, BarChart } from 'react-native-chart-kit';
-
+import { BarChart } from 'react-native-chart-kit';
 import usersData from '../../../data/users.json';
 import eventsData from '../../../data/eventos.json';
 import reviewsData from '../../../data/reviews.json';
@@ -8,74 +8,77 @@ import reviewsData from '../../../data/reviews.json';
 const screenWidth = Dimensions.get('window').width;
 
 export default function AdminHome() {
-  // ----------------------------
-  // Registos de utilizadores por mês
-  // ----------------------------
-  const getRegistrationsPerMonth = () => {
-    const counts: Record<string, number> = {};
+  const months = [
+    'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+    'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
+  ];
 
-    usersData.users.forEach(user => {
-      const d = new Date(user.createdAt);
-      const label = `${d.toLocaleString('pt-PT', { month: 'short' })}/${d.getFullYear()}`;
-      counts[label] = (counts[label] || 0) + 1;
-    });
+  // Contagem de registos por mês
+  const counts: Record<string, number> = {};
+  months.forEach(m => counts[m] = 0);
+  usersData.users.forEach(user => {
+    const d = new Date(user.createdAt);
+    const label = months[d.getMonth()];
+    counts[label] = (counts[label] || 0) + 1;
+  });
+  const userData = months.map(m => counts[m]);
 
-    const labels = Object.keys(counts);
-    const data = labels.map(label => counts[label]);
-
-    return { labels, data };
-  };
-
-  const { labels: userLabels, data: userData } = getRegistrationsPerMonth();
-
-  // ----------------------------
   // Últimos 5 eventos e reviews
-  // ----------------------------
   const lastFiveEvents = eventsData.events
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
-
   const eventReviewsCount = lastFiveEvents.map(
     e => reviewsData.reviews.filter(r => r.reviewId === e.eventId).length
   );
-
   const eventLabels = lastFiveEvents.map(e =>
     e.title.length > 8 ? e.title.slice(0, 8) + '…' : e.title
   );
 
-  const chartWidth = Math.max(screenWidth - 64, eventLabels.length * 90);
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* CARD 1 — Line Chart */}
-      <View style={styles.card}>
-        <Text style={styles.title}>Registos de Utilizadores por Mês</Text>
-        <LineChart
-          data={{ labels: userLabels, datasets: [{ data: userData }] }}
-          width={screenWidth - 64}
-          height={220}
-          fromZero
-          segments={4}
-          chartConfig={chartConfig}
-          style={styles.chart}
-        />
-      </View>
+      {/* Título e mini-texto */}
+      <Text style={styles.sectionTitle}>Registos de Utilizadores por Mês</Text>
+      <Text style={styles.sectionSubtitle}>
+        Visualiza quantos utilizadores se registaram em cada mês do ano.
+      </Text>
 
-      {/* CARD 2 — Bar Chart */}
+      {/* Container com borda e sombra */}
       <View style={styles.card}>
-        <Text style={styles.title}>Últimos 5 Eventos & Reviews</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <BarChart
-            {...({
-              data: { labels: eventLabels, datasets: [{ data: eventReviewsCount }] },
-              width: chartWidth,
-              height: 260,
-              fromZero: true,
-              showValuesOnTopOfBars: true,
-              verticalLabelRotation: 25,
-              barPercentage: 0.6,
-              chartConfig,
-            } as any)}
+            data={{
+              labels: months,
+              datasets: [{ data: userData }],
+            }}
+            width={Math.max(screenWidth - 40, months.length * 70)} // permite scroll
+            height={220}
+            fromZero
+            yAxisLabel=""
+            yAxisSuffix=""
+            showValuesOnTopOfBars
+            chartConfig={chartConfigUsers}
+            style={styles.chart}
+          />
+        </ScrollView>
+      </View>
+
+      <Text style={styles.sectionTitle}>Últimos 5 Eventos & Reviews</Text>
+      <Text style={styles.sectionSubtitle}>
+        Número de reviews submetidas nos últimos 5 eventos.
+      </Text>
+
+      <View style={styles.card}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <BarChart
+            data={{ labels: eventLabels, datasets: [{ data: eventReviewsCount }] }}
+            width={Math.max(screenWidth - 40, eventLabels.length * 90)}
+            height={260}
+            fromZero
+            yAxisLabel=""
+            yAxisSuffix=""
+            showValuesOnTopOfBars
+            chartConfig={chartConfigEvents}
+            style={styles.chart}
           />
         </ScrollView>
       </View>
@@ -83,38 +86,53 @@ export default function AdminHome() {
   );
 }
 
-const chartConfig = {
-  backgroundGradientFrom: '#ffffff',
-  backgroundGradientTo: '#ffffff',
+const chartConfigUsers = {
+  backgroundGradientFrom: '#fff',
+  backgroundGradientTo: '#fff',
+  decimalPlaces: 0,
+  color: (opacity = 1) => `rgba(46,196,198, ${opacity})`, // cor única para todas as barras
+  labelColor: () => '#333',
+};
+
+const chartConfigEvents = {
+  backgroundGradientFrom: '#fff',
+  backgroundGradientTo: '#fff',
   decimalPlaces: 0,
   color: (opacity = 1) => `rgba(30, 58, 138, ${opacity})`,
   labelColor: () => '#333',
-  propsForDots: {
-    r: '5',
-    strokeWidth: '2',
-    stroke: '#1E3A8A',
-  },
 };
 
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    paddingBottom: 40,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#003366',
+    marginBottom: 4,
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 12,
+    textAlign: 'center',
   },
   card: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    paddingVertical: 20,
-    paddingHorizontal: 12,
+    padding: 16,
     marginBottom: 24,
-    elevation: 3,
-    overflow: 'hidden',
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 12,
-    color: '#003366',
+    borderWidth: 1.5,
+    borderColor: '#BBCDB7',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
   },
   chart: {
     borderRadius: 8,
