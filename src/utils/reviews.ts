@@ -1,4 +1,5 @@
 import { getItem, setItem } from './storage';
+import { getEventById } from './events';
 
 /**
  * FETCH REVIEWS
@@ -56,4 +57,16 @@ export const createReview = async (
 
   console.log("Saved Review Structure:", newReview);
   return newReview;
+};
+
+export const hasUserReviewedEvent = async (userId: number, eventId: number) => {
+  const reviews = await getReviews();
+  const event = await getEventById(eventId);
+
+  if (!event) return false;
+
+  // Verifies if the review has that user and recipe
+  return reviews.some((r: any) => 
+    Number(r.userId) === userId && Number(r.recipeId) === event.recipeId
+  );
 };

@@ -1,4 +1,4 @@
-import { getItem, setItem } from './storage';
+import { getItem } from './storage';
 
 export const getEvents = async () => {
   return (await getItem('events')) || [];

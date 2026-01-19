@@ -15,3 +15,7 @@ export const addUser = async (user: { id: number; name: string }) => {
   await setItem('users', updated);
   return user;
 };
+
+export const getUserLogged = async () => {
+  return (await getItem('@loggedUserId')) || [];
+};
