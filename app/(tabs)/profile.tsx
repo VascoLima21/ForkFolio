@@ -1,8 +1,17 @@
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  SafeAreaView,
+  Platform,
+  StatusBar,
+} from 'react-native';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import AdminCarousel from '../../src/screens/Admin/AdminCarousel';
 import ProfileUserScreen from '../../src/screens/Tabs/ProfileScreen';
+
 import eventsData from '../../data/eventos.json';
 import usersData from '../../data/users.json';
 
@@ -24,11 +33,7 @@ export default function ProfileScreenWrapper() {
         const userId = parseInt(storedUserId, 10);
         const user = usersData.users.find(u => u.id === userId);
 
-        if (user?.role === 'admin') {
-          setMode('admin');
-        } else {
-          setMode('profile');
-        }
+        setMode(user?.role === 'admin' ? 'admin' : 'profile');
       } catch {
         setMode('profile');
       } finally {
@@ -41,30 +46,32 @@ export default function ProfileScreenWrapper() {
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.center]}>
+      <SafeAreaView style={[styles.container, styles.center]}>
         <ActivityIndicator size="large" color="#2EC4C6" />
         <Text>Carregando perfil...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={[
-      styles.container,
-      { backgroundColor: mode === 'admin' ? '#BBCDB7' : '#BBCDB7' } // sempre verde
-    ]}>
+    <SafeAreaView style={styles.container}>
       {mode === 'admin' && <AdminCarousel events={events} setEvents={setEvents} />}
       {mode === 'profile' && <ProfileUserScreen />}
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1 
+  container: {
+    flex: 1,
+    backgroundColor: '#BBCDB7',
+    paddingTop:
+      Platform.OS === 'android'
+        ? StatusBar.currentHeight ?? 24
+        : 20,
   },
   center: {
     justifyContent: 'center',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 });

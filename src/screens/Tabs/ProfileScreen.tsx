@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 14,
     paddingHorizontal: 14,
-    marginBottom: 22,   // ⬅️ mais espaço entre inputs
+    marginBottom: 22,  
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowRadius: 5,

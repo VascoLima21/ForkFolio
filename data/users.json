@@ -21,8 +21,23 @@
       "name": "Luis Pereira",
       "email": "Luis@email.com",
       "password": "abcdef",
-      "role": "admin",
+      "role": "user",
       "createdAt": "2025-02-12T09:10:00Z"
+    },
+    {
+      "id": 4,
+      "name": "Bruno",
+      "email": "bruno@email.com",
+      "password": "123",
+      "role": "admin",
+      "createdAt": "2025-05-12T09:10:00Z"
+    },{
+      "id": 5,
+      "name": "Barros",
+      "email": "barros@email.com",
+      "password": "abcdef",
+      "role": "user",
+      "createdAt": "2025-08-12T09:10:00Z"
     }
   ]
 }
