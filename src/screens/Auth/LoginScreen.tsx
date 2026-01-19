@@ -1,4 +1,16 @@
-import { View, Text, TextInput, Pressable, StyleSheet, Alert, Image, ImageBackground } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  Alert,
+  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -32,84 +44,111 @@ export default function LoginScreen() {
 
   return (
     <ImageBackground
-      source={{ uri: 'https://exclusive-bronze-uastrkj592.edgeone.app/Group%2090.png' }}
+      source={{ uri: 'https://i.imgur.com/T08HtGy.png' }}
       style={styles.background}
       resizeMode="cover"
     >
-      <View style={styles.container}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+      >
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Imagem central */}
+          <Image
+            source={{ uri: 'https://i.imgur.com/onBlLii.png' }}
+            style={styles.welcomeImage}
+          />
 
-        {/* Imagem central sempre visível e mesma altura */}
-        <Image
-          source={{ uri: 'https://enthusiastic-apricot-l6hhrz9cvi.edgeone.app/Group%2089.png' }}
-          style={styles.welcomeImage}
-        />
+          {step === 'welcome' ? (
+            <>
+              <Pressable style={styles.button} onPress={() => setStep('login')}>
+                <Text style={styles.buttonText}>Login</Text>
+              </Pressable>
 
-        {step === 'welcome' ? (
-          <>
-            <Pressable style={styles.button} onPress={() => setStep('login')}>
-              <Text style={styles.buttonText}>Login</Text>
-            </Pressable>
-
-            <Pressable style={styles.button} onPress={() => router.push('/auth/register')}>
-              <Text style={styles.buttonText}>Signup</Text>
-            </Pressable>
-          </>
-        ) : (
-          <>
-            {/* Email */}
-            <View style={styles.inputWrapper}>
-              <Ionicons name="mail-outline" size={22} color="#555" style={styles.icon} />
-              <TextInput
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                style={styles.input}
-              />
-            </View>
-
-            {/* Password */}
-            <View style={styles.inputWrapper}>
-              <Ionicons name="lock-closed-outline" size={22} color="#555" style={styles.icon} />
-              <TextInput
-                placeholder="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                style={styles.input}
-              />
-              <Pressable onPress={() => setShowPassword(!showPassword)}>
+              <Pressable
+                style={styles.button}
+                onPress={() => router.push('/auth/register')}
+              >
+                <Text style={styles.buttonText}>Signup</Text>
+              </Pressable>
+            </>
+          ) : (
+            <>
+              {/* Email */}
+              <View style={styles.inputWrapper}>
                 <Ionicons
-                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  name="mail-outline"
                   size={22}
                   color="#555"
+                  style={styles.icon}
                 />
+                <TextInput
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  style={styles.input}
+                />
+              </View>
+
+              {/* Password */}
+              <View style={styles.inputWrapper}>
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={22}
+                  color="#555"
+                  style={styles.icon}
+                />
+                <TextInput
+                  placeholder="Password"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  style={styles.input}
+                />
+                <Pressable onPress={() => setShowPassword(!showPassword)}>
+                  <Ionicons
+                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={22}
+                    color="#555"
+                  />
+                </Pressable>
+              </View>
+
+              {/* Botão Entrar */}
+              <Pressable style={styles.enterButton} onPress={handleLogin}>
+                <Text style={styles.enterText}>Entrar</Text>
+                <Ionicons name="arrow-forward" size={22} color="#000" />
               </Pressable>
-            </View>
 
-            {/* Botão Entrar pill */}
-            <Pressable style={styles.enterButton} onPress={handleLogin}>
-              <Text style={styles.enterText}>Entrar</Text>
-              <Ionicons name="arrow-forward" size={22} color="#000" />
-            </Pressable>
-
-            {/* Texto “Não tens conta?” */}
-            <Pressable style={styles.registerTextWrapper} onPress={() => router.replace('/auth/register')}>
-              <Text style={styles.registerText}>Não tens conta?</Text>
-            </Pressable>
-          </>
-        )}
-
-      </View>
+              {/* Registo */}
+              <Pressable
+                style={styles.registerTextWrapper}
+                onPress={() => router.replace('/auth/register')}
+              >
+                <Text style={styles.registerText}>Não tens conta?</Text>
+              </Pressable>
+            </>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  background: { flex: 1 },
+  background: {
+    flex: 1,
+  },
 
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     padding: 24,
   },
@@ -139,7 +178,9 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 
-  icon: { marginRight: 8 },
+  icon: {
+    marginRight: 8,
+  },
 
   input: {
     flex: 1,
@@ -179,7 +220,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#BBCDB7',
     paddingHorizontal: 20,
     height: 50,
-    borderRadius: 25, // pill
+    borderRadius: 25,
+
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.3,

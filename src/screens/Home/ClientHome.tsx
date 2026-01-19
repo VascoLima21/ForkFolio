@@ -26,7 +26,7 @@ const team: TeamMember[] = [
   {
     name: 'Bruno Silva',
     github: 'https://github.com/BMFASilva',
-    imageUrl: 'https://avatars.githubusercontent.com/BMFASilva',
+    imageUrl: 'https://avatars.githubusercontent.com/u/115479800?v=4',
   },
 ];
 

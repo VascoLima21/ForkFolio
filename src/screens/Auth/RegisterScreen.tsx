@@ -1,4 +1,16 @@
-import { View, Text, TextInput, Pressable, StyleSheet, Alert, Image, ImageBackground } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  Alert,
+  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import { router } from 'expo-router';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -25,9 +37,7 @@ export default function RegisterScreen() {
     const fetchUsers = async () => {
       try {
         const storedUsers = await AsyncStorage.getItem('@users');
-        if (storedUsers) {
-          setUsers(JSON.parse(storedUsers));
-        }
+        if (storedUsers) setUsers(JSON.parse(storedUsers));
       } catch (error) {
         console.error('Erro ao ler utilizadores do AsyncStorage:', error);
       }
@@ -35,7 +45,8 @@ export default function RegisterScreen() {
     fetchUsers();
   }, []);
 
-  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isValidEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleRegister = async () => {
     if (!username || !email || !password || !confirmPassword) {
@@ -80,91 +91,125 @@ export default function RegisterScreen() {
 
   return (
     <ImageBackground
-      source={{ uri: 'https://exclusive-bronze-uastrkj592.edgeone.app/Group%2090.png' }}
+      source={{ uri: 'https://i.imgur.com/T08HtGy.png' }}
       style={styles.background}
       resizeMode="cover"
     >
-      <View style={styles.container}>
-        <Image
-          source={{ uri: 'https://enthusiastic-apricot-l6hhrz9cvi.edgeone.app/Group%2089.png' }}
-          style={styles.welcomeImage}
-        />
-
-        <Text style={styles.title}>Criar Conta</Text>
-
-        {/* Username */}
-        <View style={styles.inputWrapper}>
-          <Ionicons name="person-outline" size={22} color="#555" style={styles.icon} />
-          <TextInput
-            placeholder="Username"
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-            style={styles.input}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+      >
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <Image
+            source={{ uri: 'https://i.imgur.com/onBlLii.png' }}
+            style={styles.welcomeImage}
           />
-        </View>
 
-        {/* Email */}
-        <View style={styles.inputWrapper}>
-          <Ionicons name="mail-outline" size={22} color="#555" style={styles.icon} />
-          <TextInput
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            style={styles.input}
-          />
-        </View>
+          <Text style={styles.title}>Criar Conta</Text>
 
-        {/* Password */}
-        <View style={styles.inputWrapper}>
-          <Ionicons name="lock-closed-outline" size={22} color="#555" style={styles.icon} />
-          <TextInput
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-            style={styles.input}
-          />
-          <Pressable onPress={() => setShowPassword(!showPassword)}>
+          {/* Username */}
+          <View style={styles.inputWrapper}>
             <Ionicons
-              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+              name="person-outline"
               size={22}
               color="#555"
+              style={styles.icon}
             />
-          </Pressable>
-        </View>
+            <TextInput
+              placeholder="Username"
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              style={styles.input}
+            />
+          </View>
 
-        {/* Confirm Password */}
-        <View style={styles.inputWrapper}>
-          <Ionicons name="lock-closed-outline" size={22} color="#555" style={styles.icon} />
-          <TextInput
-            placeholder="Confirmar Password"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry={!showConfirmPassword}
-            style={styles.input}
-          />
-          <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+          {/* Email */}
+          <View style={styles.inputWrapper}>
             <Ionicons
-              name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+              name="mail-outline"
               size={22}
               color="#555"
+              style={styles.icon}
             />
+            <TextInput
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              style={styles.input}
+            />
+          </View>
+
+          {/* Password */}
+          <View style={styles.inputWrapper}>
+            <Ionicons
+              name="lock-closed-outline"
+              size={22}
+              color="#555"
+              style={styles.icon}
+            />
+            <TextInput
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              style={styles.input}
+            />
+            <Pressable onPress={() => setShowPassword(!showPassword)}>
+              <Ionicons
+                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                size={22}
+                color="#555"
+              />
+            </Pressable>
+          </View>
+
+          {/* Confirm Password */}
+          <View style={styles.inputWrapper}>
+            <Ionicons
+              name="lock-closed-outline"
+              size={22}
+              color="#555"
+              style={styles.icon}
+            />
+            <TextInput
+              placeholder="Confirmar Password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry={!showConfirmPassword}
+              style={styles.input}
+            />
+            <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+              <Ionicons
+                name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                size={22}
+                color="#555"
+              />
+            </Pressable>
+          </View>
+
+          {/* Botão Registar */}
+          <Pressable style={styles.enterButton} onPress={handleRegister}>
+            <Text style={styles.enterText}>Registar</Text>
+            <Ionicons name="arrow-forward" size={22} color="#000" />
           </Pressable>
-        </View>
 
-        {/* Botão Registar pill */}
-        <Pressable style={styles.enterButton} onPress={handleRegister}>
-          <Text style={styles.enterText}>Registar</Text>
-          <Ionicons name="arrow-forward" size={22} color="#000" />
-        </Pressable>
-
-        {/* Texto já tens conta? */}
-        <Pressable style={styles.loginTextWrapper} onPress={() => router.replace('/auth/login')}>
-          <Text style={styles.loginText}>Já tens conta?</Text>
-        </Pressable>
-      </View>
+          {/* Já tens conta? */}
+          <Pressable
+            style={styles.loginTextWrapper}
+            onPress={() => router.replace('/auth/login')}
+          >
+            <Text style={styles.loginText}>Já tens conta?</Text>
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ImageBackground>
   );
 }
@@ -173,7 +218,7 @@ const styles = StyleSheet.create({
   background: { flex: 1 },
 
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     padding: 24,
   },
@@ -227,7 +272,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#BBCDB7',
     paddingHorizontal: 20,
     height: 50,
-    borderRadius: 25, // pill
+    borderRadius: 25, 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.3,

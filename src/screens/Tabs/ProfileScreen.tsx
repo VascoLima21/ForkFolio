@@ -1,4 +1,14 @@
-import { View, Text, TextInput, Pressable, StyleSheet, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import usersData from '../../../data/users.json';
@@ -45,76 +55,96 @@ export default function ProfileScreen() {
   if (!user) return null;
 
   return (
-    <View style={styles.page}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+    >
+      <ScrollView
+        contentContainerStyle={styles.page}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.title}>O meu Perfil</Text>
 
-      <Text style={styles.title}>O meu Perfil</Text>
-
-      <Image
-        source={{ uri: 'https://enthusiastic-apricot-l6hhrz9cvi.edgeone.app/Group%2089.png' }}
-        style={styles.avatar}
-      />
-
-      <Text style={styles.label}>Nome</Text>
-      <View style={styles.inputBox}>
-        <Ionicons name="person-outline" size={20} />
-        <TextInput value={name} onChangeText={setName} style={styles.input} />
-      </View>
-
-      <Text style={styles.label}>Email</Text>
-      <View style={styles.inputBox}>
-        <Ionicons name="mail-outline" size={20} />
-        <TextInput value={email} onChangeText={setEmail} style={styles.input} />
-      </View>
-
-      <Text style={styles.label}>Password</Text>
-      <View style={styles.inputBox}>
-        <Ionicons name="lock-closed-outline" size={20} />
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-          style={styles.input}
+        <Image
+          source={{ uri: 'https://i.imgur.com/onBlLii.png' }}
+          style={styles.avatar}
         />
-        <Pressable onPress={() => setShowPassword(!showPassword)}>
-          <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={20} />
+
+        <Text style={styles.label}>Nome</Text>
+        <View style={styles.inputBox}>
+          <Ionicons name="person-outline" size={20} />
+          <TextInput value={name} onChangeText={setName} style={styles.input} />
+        </View>
+
+        <Text style={styles.label}>Email</Text>
+        <View style={styles.inputBox}>
+          <Ionicons name="mail-outline" size={20} />
+          <TextInput value={email} onChangeText={setEmail} style={styles.input} />
+        </View>
+
+        <Text style={styles.label}>Password</Text>
+        <View style={styles.inputBox}>
+          <Ionicons name="lock-closed-outline" size={20} />
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            style={styles.input}
+          />
+          <Pressable onPress={() => setShowPassword(!showPassword)}>
+            <Ionicons
+              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+              size={20}
+            />
+          </Pressable>
+        </View>
+
+        <Pressable
+          style={[styles.button, styles.updateButton]}
+          onPress={() =>
+            ask('Atualizar', 'Confirmar atualização?', async () => {
+              const updated = usersData.users.map(u =>
+                u.id === user.id ? { ...u, name, email, password } : u
+              );
+              await AsyncStorage.setItem('@users', JSON.stringify(updated));
+            })
+          }
+        >
+          <Text style={styles.buttonText}>Atualizar</Text>
         </Pressable>
-      </View>
 
-      <Pressable
-        style={[styles.button, styles.updateButton]}
-        onPress={() => ask('Atualizar', 'Confirmar atualização?', async () => {
-          const updated = usersData.users.map(u => u.id === user.id ? { ...u, name, email, password } : u);
-          await AsyncStorage.setItem('@users', JSON.stringify(updated));
-        })}
-      >
-        <Text style={styles.buttonText}>Atualizar</Text>
-      </Pressable>
+        <Pressable
+          style={[styles.button, styles.logoutButton]}
+          onPress={() =>
+            ask('Sair', 'Tens a certeza que queres sair?', async () => {
+              await AsyncStorage.removeItem('@loggedUserId');
+              router.replace('/auth/login');
+            })
+          }
+        >
+          <Text style={styles.buttonText}>Sair da Conta</Text>
+        </Pressable>
 
-      <Pressable
-        style={[styles.button, styles.logoutButton]}
-        onPress={() => ask('Sair', 'Tens a certeza que queres sair?', async () => {
-          await AsyncStorage.removeItem('@loggedUserId');
-          router.replace('/auth/login');
-        })}
-      >
-        <Text style={styles.buttonText}>Sair da Conta</Text>
-      </Pressable>
-
-      <ConfirmModal
-        visible={confirmVisible}
-        title={confirmTitle}
-        message={confirmMessage}
-        onConfirm={() => { confirmAction(); setConfirmVisible(false); }}
-        onCancel={() => setConfirmVisible(false)}
-      />
-
-    </View>
+        <ConfirmModal
+          visible={confirmVisible}
+          title={confirmTitle}
+          message={confirmMessage}
+          onConfirm={() => {
+            confirmAction();
+            setConfirmVisible(false);
+          }}
+          onCancel={() => setConfirmVisible(false)}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   page: {
-    flex: 1,
+    flexGrow: 1,
     paddingTop: 60,
     paddingHorizontal: 24,
   },
@@ -145,7 +175,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 14,
     paddingHorizontal: 14,
-    marginBottom: 22,  
+    marginBottom: 22,
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowRadius: 5,
@@ -159,7 +189,7 @@ const styles = StyleSheet.create({
 
   button: {
     alignSelf: 'center',
-    width: '60%',      
+    width: '60%',
     paddingVertical: 14,
     borderRadius: 16,
     alignItems: 'center',
@@ -168,7 +198,7 @@ const styles = StyleSheet.create({
   updateButton: {
     backgroundColor: '#2EC4C6',
     marginTop: 18,
-    marginBottom: 18,  
+    marginBottom: 18,
   },
 
   logoutButton: {
