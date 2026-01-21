@@ -1,8 +1,8 @@
-import { View, StyleSheet, Pressable, Text } from 'react-native';
+import { View, StyleSheet, Pressable, Text, FlatList, useWindowDimensions, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState, useEffect } from 'react';
-import { getReviews } from '@/src/utils/reviews';
-import { getUserById } from '@/src/utils/users';
+import { useState, useEffect, useRef } from 'react';
+import { getReviews, removeReview } from '@/src/utils/reviews';
+import { getUserById, getUserLogged } from '@/src/utils/users';
 import { getEventById } from '@/src/utils/events';
 
 import { ShowAllReviews } from '@/src/components/reviews/ShowAllReviews';
@@ -24,6 +24,10 @@ export default function ShowReviewsScreen() {
   const [loading, setLoading] = useState(true);
   const [exploreData, setExploreData] = useState<FullReview[]>([]);
   const [myData, setMyData] = useState<FullReview[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+
+  const { width } = useWindowDimensions();
+  const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
     loadAllData();
@@ -31,9 +35,10 @@ export default function ShowReviewsScreen() {
 
   const loadAllData = async () => {
     try {
-      const currentUserId = 1; // Replace with dynamic Auth ID
+      const loggedId = Number(await getUserLogged());
+      setCurrentUserId(loggedId);
+      
       const reviewsData = await getReviews();
-      console.log(reviewsData);
 
       const detailed = await Promise.all(reviewsData.map(async (r: any) => {
         const user = await getUserById(r.userId);
@@ -43,29 +48,18 @@ export default function ShowReviewsScreen() {
           ...r,
           userName: user?.name || "Aluno ESTH",
           eventName: event?.title || "Evento",
-          /**
-           * STRICT MAPPING:
-           * English Comment: Strictly maps 'finalComment' to 'question6'.
-           * No fallbacks to question4 or others.
-           */
           finalComment: r.question6 || "" 
         };
       }));
 
-      // Sort by newest first
       const sorted = detailed.sort((a, b) => 
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
 
-      /**
-       * STRICT FILTERING:
-       * 1. Explore Tab: Only shows reviews where question6 (finalComment) is NOT empty.
-       * 2. My Reviews Tab: Shows all reviews from the user, even empty ones.
-       */
       const reviewsWithComments = sorted.filter(r => r.finalComment && r.finalComment.trim().length > 0);
       
       setExploreData(reviewsWithComments);
-      setMyData(sorted.filter(r => r.userId === currentUserId));
+      setMyData(sorted.filter(r => r.userId === loggedId));
       
     } catch (e) {
       console.error("Error processing data:", e);
@@ -74,22 +68,67 @@ export default function ShowReviewsScreen() {
     }
   };
 
+  /**
+   * Handles deletion and refreshes the lists
+   */
+  const handleDelete = async (id: number) => {
+    try {
+      await removeReview(id);
+      await loadAllData();
+    } catch {
+      Alert.alert("Erro", "Não foi possível eliminar a avaliação.");
+    }
+  };
+
+  const handleTabPress = (index: number) => {
+    setActiveTab(index);
+    flatListRef.current?.scrollToIndex({ index, animated: true });
+  };
+
+  const onMomentumScrollEnd = (event: any) => {
+    const index = Math.round(event.nativeEvent.contentOffset.x / width);
+    setActiveTab(index);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
       <View style={styles.tabBar}>
-        <Pressable style={styles.tab} onPress={() => setActiveTab(0)}>
+        <Pressable style={styles.tab} onPress={() => handleTabPress(0)}>
           <Text style={[styles.tabText, activeTab === 0 && styles.activeTabText]}>Reviews</Text>
         </Pressable>
-        <Pressable style={styles.tab} onPress={() => setActiveTab(1)}>
+        <Pressable style={styles.tab} onPress={() => handleTabPress(1)}>
           <Text style={[styles.tabText, activeTab === 1 && styles.activeTabText]}>As Minhas Reviews</Text>
         </Pressable>
       </View>
 
-      {activeTab === 0 ? (
-        <ShowAllReviews data={exploreData} loading={loading} />
-      ) : (
-        <ShowMyReviews data={myData} loading={loading} />
-      )}
+      <FlatList
+        ref={flatListRef}
+        data={[0, 1]}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={onMomentumScrollEnd}
+        keyExtractor={(item) => item.toString()}
+        renderItem={({ item }) => (
+          <View style={{ width }}>
+            {item === 0 ? (
+              <ShowAllReviews 
+                data={exploreData} 
+                loading={loading} 
+                currentUserId={currentUserId} 
+                onDelete={handleDelete} 
+              />
+            ) : (
+              <ShowMyReviews 
+                data={myData} 
+                loading={loading} 
+                currentUserId={currentUserId} 
+                onDelete={handleDelete} 
+              />
+            )}
+          </View>
+        )}
+      />
     </SafeAreaView>
   );
 }

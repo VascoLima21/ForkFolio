@@ -1,7 +1,14 @@
 import { Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
 import { ReviewCard } from './ReviewCard';
 
-export const ShowMyReviews = ({ data, loading }: { data: any[], loading: boolean }) => {
+interface Props {
+  data: any[];
+  loading: boolean;
+  currentUserId: number | null;
+  onDelete: (id: number) => void;
+}
+
+export const ShowMyReviews = ({ data, loading, currentUserId, onDelete }: Props) => {
   if (loading) return <ActivityIndicator style={{ marginTop: 20 }} color="#2f95dc" />;
 
   return (
@@ -11,11 +18,14 @@ export const ShowMyReviews = ({ data, loading }: { data: any[], loading: boolean
       contentContainerStyle={{ padding: 20 }}
       renderItem={({ item }) => (
         <ReviewCard
+          id={item.id}
           userName={item.userName}
           eventName={item.eventName}
           comment={item.finalComment || "Submeteste esta avaliação sem comentário."}
           isAnonymous={item.isAnonymous}
           createdAt={item.createdAt}
+          isMine={true}
+          onDelete={onDelete}
         />
       )}
       ListEmptyComponent={<Text style={styles.empty}>Ainda não fizeste nenhuma review.</Text>}

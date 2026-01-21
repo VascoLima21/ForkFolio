@@ -53,12 +53,31 @@ export default function CreateReviewScreen() {
   };
 
   /**
+   * Cancel Logic
+   * Displays a confirmation alert before exiting the screen.
+   */
+  const handleCancel = () => {
+    Alert.alert(
+      "Cancelar Avaliação",
+      "Tens a certeza que pretendes sair? Todo o progresso atual será perdido.",
+      [
+        { text: "Continuar a responder", style: "cancel" },
+        {
+          text: "Sair e Perder Dados",
+          style: "destructive",
+          onPress: () => router.back()
+        }
+      ]
+    );
+  };
+
+  /**
    * Validation Logic
    * Validates only the questions present on the current page.
    * Question with ID 6 is optional. All other questions are mandatory.
    */
   const isStepValid = () => {
-    const startIndex = step * 2; 
+    const startIndex = step * 2;
     const pageQuestions = reviewQuestions.questions.slice(startIndex, startIndex + 2);
 
     return pageQuestions.every((q) => {
@@ -93,7 +112,7 @@ export default function CreateReviewScreen() {
   const handleSubmit = async () => {
     if (!isStepValid()) {
       Alert.alert(
-        "Último Passo", 
+        "Último Passo",
         "Por favor, preenche as perguntas obrigatórias antes de submeteres."
       );
       return;
@@ -105,7 +124,7 @@ export default function CreateReviewScreen() {
 
       if (!userId) {
         Alert.alert(
-          "Erro de Sessão", 
+          "Erro de Sessão",
           "Não foi possível encontrar a tua sessão. Por favor, faz login novamente."
         );
         return;
@@ -113,7 +132,7 @@ export default function CreateReviewScreen() {
 
       const numericEventId = Number(eventId);
       const currentEvent = await getEventById(numericEventId);
-      
+
       if (!currentEvent) throw new Error("Event not found");
       const recipeId = currentEvent.recipeId;
 
@@ -127,14 +146,14 @@ export default function CreateReviewScreen() {
        */
       const storedData = await getItem('user_recipes');
       const currentList = Array.isArray(storedData) ? storedData : (storedData?.user_recipes || []);
-      
+
       const newUserRecipe = {
         id: currentList.length + 1,
         userId,
         recipeId,
         assignedAt: new Date().toISOString(),
       };
-      
+
       await setItem('user_recipes', [...currentList, newUserRecipe]);
 
       // Reste and navigate to reviewComplete screen
@@ -145,7 +164,7 @@ export default function CreateReviewScreen() {
     } catch (error) {
       console.error('Error submitting review:', error);
       Alert.alert(
-        "Erro", 
+        "Erro",
         "Não foi possível guardar a tua review. Por favor, tenta novamente."
       );
     }
@@ -161,7 +180,7 @@ export default function CreateReviewScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 32 }}>
         <ProgressBar step={step} />
-        
+
         <View style={styles.headerContainer}>
           <Text style={styles.eventTitle}>{event?.title || 'A carregar...'}</Text>
           {event?.date && (
@@ -198,6 +217,7 @@ export default function CreateReviewScreen() {
           onPrev={() => setStep(step - 1)}
           onNext={handleNext}
           onSubmit={handleSubmit}
+          onCancel={handleCancel}
         />
       </View>
     </SafeAreaView>
@@ -208,15 +228,15 @@ const styles = StyleSheet.create({
   headerContainer: { marginBottom: 24, alignItems: 'center' },
   eventTitle: { fontFamily: 'georamaSemiBold', fontSize: 20, marginBottom: 2 },
   eventDate: { fontFamily: 'georamaRegular', fontSize: 14, color: '#666', marginBottom: 6 },
-  anonymousCard: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    padding: 16, 
-    backgroundColor: '#f8f9fa', 
-    borderRadius: 12, 
-    borderWidth: 1, 
-    borderColor: '#eee', 
-    marginTop: 10 
+  anonymousCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#eee',
+    marginTop: 10
   },
   anonymousLabel: { fontFamily: 'georamaSemiBold', fontSize: 16, color: '#333' },
   anonymousSub: { fontFamily: 'livvicRegular', fontSize: 12, color: '#777', marginTop: 2 },
