@@ -8,7 +8,7 @@ export default function GenerateQRScreen() {
   const [loading, setLoading] = useState(true);
 
   // Event ID for generating the QR screen
-  const eventId = 2;
+  const eventId = 4;
 
   useEffect(() => {
     async function loadEvent() {

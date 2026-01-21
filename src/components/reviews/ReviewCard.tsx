@@ -1,17 +1,38 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface ReviewCardProps {
+  id: number; // Added to identify the review for deletion
   userName: string;
   eventName: string;
   comment: string;
   isAnonymous: boolean;
   createdAt: string;
+  isMine: boolean; // Flag to check if current user owns this review
+  onDelete?: (id: number) => void; // Callback after successful deletion
 }
 
-export const ReviewCard = ({ userName, eventName, comment, isAnonymous, createdAt }: ReviewCardProps) => {
+export const ReviewCard = ({ id, userName, eventName, comment, isAnonymous, createdAt, isMine, onDelete }: ReviewCardProps) => {
   // If is anonymous ignore username and set as anonymous
   const displayName = isAnonymous ? "Anónimo" : userName;
+
+  /**
+   * Confirmation popup before deletion
+   */
+  const handleDeletePress = () => {
+    Alert.alert(
+      "Eliminar Avaliação",
+      "Tens a certeza que pretendes eliminar esta avaliação permanentemente?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { 
+          text: "Eliminar", 
+          style: "destructive", 
+          onPress: () => onDelete && onDelete(id) 
+        }
+      ]
+    );
+  };
   
   return (
     <View style={styles.card}>
@@ -30,7 +51,13 @@ export const ReviewCard = ({ userName, eventName, comment, isAnonymous, createdA
           <Text style={styles.eventTitle}>{eventName}</Text>
         </View>
         
-        <Ionicons name="flag-outline" size={18} color="#ccc" />
+        {isMine ? (
+          <Pressable onPress={handleDeletePress}>
+            <Ionicons name="trash-outline" size={20} color="#ff4444" />
+          </Pressable>
+        ) : (
+          <Ionicons name="flag-outline" size={18} color="#ccc" />
+        )}
       </View>
 
       <Text style={styles.comment}>{comment}</Text>

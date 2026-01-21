@@ -70,3 +70,13 @@ export const hasUserReviewedEvent = async (userId: number, eventId: number) => {
     Number(r.userId) === userId && Number(r.recipeId) === event.recipeId
   );
 };
+
+// REMOVE REVIEW
+// Filters out the review by ID and updates the storage.
+
+export const removeReview = async (reviewId: number) => {
+  const reviews = await getReviews();
+  const updatedReviews = reviews.filter((r: any) => r.id !== reviewId);
+  await setItem('reviews', updatedReviews);
+  return updatedReviews;
+};

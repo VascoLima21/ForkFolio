@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useState, useCallback } from 'react';
 
 import { getItem } from '@/src/utils/storage';
 import { hasUserReviewedEvent } from '@/src/utils/reviews';
@@ -10,30 +10,36 @@ export default function QRScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
 
+  /**
+   * This hook happens every time the screen gains focus(when entering or coming back)
+   */
+  useFocusEffect(
+    useCallback(() => {
+      setScanned(false); // Reset the state so you can scan again
+    }, [])
+  );
+
   if (!permission) return null;
 
   if (!permission.granted) {
     requestPermission();
     return (
       <View style={styles.center}>
-        <Text>A pedir permissão para usar a câmara...</Text>
+        <Text style={styles.loadingText}>A pedir permissão para usar a câmara...</Text>
       </View>
     );
   }
 
-  /**
-   * Handles all the logic for scanning the QR code
-   */
   const handleBarcodeScanned = async ({ data }: { data: string }) => {
     if (scanned) return;
     setScanned(true);
 
     const [key, value] = data.split('=');
 
-    // Basic validation for the qr code
     if (key !== 'eventId' || !value) {
       console.warn('QR Code inválido:', data);
-      setScanned(false);
+      // Small delay as to not scan again if just scanned
+      setTimeout(() => setScanned(false), 2000); 
       return;
     }
 
@@ -46,7 +52,6 @@ export default function QRScreen() {
     try {
       const userId = await getItem('@loggedUserId');
 
-      // Verifies if the user already reviewd that event
       const alreadyReviewed = await hasUserReviewedEvent(Number(userId), eventId);
 
       if (alreadyReviewed) {
@@ -63,7 +68,6 @@ export default function QRScreen() {
         return;
       }
 
-      // If everything is ok navigate to the createReviewScreen
       router.push({
         pathname: '/reviews/createReview',
         params: { eventId },
@@ -81,8 +85,7 @@ export default function QRScreen() {
       <CameraView
         style={StyleSheet.absoluteFill}
         barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
-        onBarcodeScanned={handleBarcodeScanned}
-      />
+        onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}/>
 
       <View style={styles.overlay}>
         <Text style={styles.text}>Aponta para o QR Code do Evento</Text>
@@ -92,8 +95,9 @@ export default function QRScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, backgroundColor: '#000' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
+  loadingText: { fontFamily: 'georamaRegular', color: '#666' },
   overlay: {
     position: 'absolute',
     bottom: 40,
@@ -103,5 +107,5 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 20,
   },
-  text: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  text: { color: '#fff', fontSize: 16, fontWeight: '600', fontFamily: 'georamaSemiBold' },
 });
